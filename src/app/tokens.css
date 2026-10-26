@@ -1,0 +1,84 @@
+/* Instituto Santa Escolástica — tokens do design system (gerado de tokens.json) */
+:root, [data-theme="light"] {
+  --surface: #f8f5ec;
+  --surface-raised: #ffffff;
+  --surface-sunken: #efe9da;
+  --line: #d9d0bb;
+  --line-strong: #858c84;
+  --ink: #1f2a24;
+  --ink-muted: #56615a;
+  --verde: #1f4d3a;
+  --on-verde: #ffffff;
+  --verde-soft: #e1ebe5;
+  --verde-profundo: #163829;
+  --dourado: #d8a516;
+  --azul: #192a4d;
+  --on-azul: #ffffff;
+  --azul-soft: #e3e7f0;
+  --salvia: #52695b;
+  --creme: #f1edbe;
+  --dourado-ink: #7a5c12;
+  --dourado-soft: #f6edd4;
+  --alerta: #b42318;
+  --alerta-soft: #fde9e6;
+  --on-alerta: #ffffff;
+  --falta: #a3400b;
+  --falta-soft: #fdeee2;
+  --on-falta: #ffffff;
+  --shadow-sm: 0 1px 2px #1f2a240f, 0 1px 3px #1f2a2414;
+  --shadow-lg: 0 6px 12px #1f2a2414, 0 16px 32px -4px #1f2a2424;
+  --focus-ring: 0 0 0 2px #f8f5ec, 0 0 0 4px #1f4d3a;
+}
+[data-theme="dark"] {
+  --surface: #111a14;
+  --surface-raised: #18241c;
+  --surface-sunken: #0b120d;
+  --line: #33443a;
+  --line-strong: #6e8174;
+  --ink: #eef0e8;
+  --ink-muted: #a7b2aa;
+  --verde: #7fbf9e;
+  --on-verde: #0d1a11;
+  --verde-soft: #1d3526;
+  --verde-profundo: #2a5e47;
+  --dourado: #e0b83a;
+  --azul: #a9bbe3;
+  --on-azul: #0b1220;
+  --azul-soft: #1c2640;
+  --salvia: #9db5a6;
+  --creme: #2e2b17;
+  --dourado-ink: #e4c77c;
+  --dourado-soft: #3a2f12;
+  --alerta: #f97a6e;
+  --alerta-soft: #3f1613;
+  --on-alerta: #1a0806;
+  --falta: #fb9a52;
+  --falta-soft: #3d200c;
+  --on-falta: #1a0c03;
+  --shadow-sm: 0 1px 3px #000000a6;
+  --shadow-lg: 0 16px 32px -4px #000000cc;
+  --focus-ring: 0 0 0 2px #111a14, 0 0 0 4px #7fbf9e;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --font-marca: Cinzel, "Times New Roman", serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: Montserrat, "Segoe UI", system-ui, sans-serif;
+}
+.display { font-family: var(--font-marca); font-size: 40px; line-height: 46px; font-weight: 700; }
+.titulo { font-family: var(--font-serif); font-size: 30px; line-height: 36px; font-weight: 700; }
+.secao { font-family: var(--font-serif); font-size: 22px; line-height: 28px; font-weight: 700; }
+.corpo { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.corpo-forte { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 600; }
+.rotulo { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.legenda { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.sobrelinha { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.08em; }
