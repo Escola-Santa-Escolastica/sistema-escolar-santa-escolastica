@@ -37,6 +37,12 @@ export default async function Usuarios() {
   const nomes = new Map((pessoas ?? []).map((p) => [p.user_id as string, p.nome]));
   const linhas = (atribuicoes ?? []) as unknown as Linha[];
 
+  // Uma linha por pessoa, com os perfis dela agrupados (uma conta pode ter vários perfis).
+  const porPessoa = new Map<string, Linha[]>();
+  for (const l of linhas) porPessoa.set(l.user_id, [...(porPessoa.get(l.user_id) ?? []), l]);
+  const pessoasEquipe = [...porPessoa.entries()].sort(([a], [b]) =>
+    (nomes.get(a) ?? '').localeCompare(nomes.get(b) ?? '', 'pt-BR'));
+
   return (
     <main className="pagina">
       <div className="topo">
@@ -48,38 +54,42 @@ export default async function Usuarios() {
       <div className="colunas">
         <section className="painel painel-sem-padding coluna-principal" aria-labelledby="t-equipe">
           <div className="painel-cab"><h2 id="t-equipe" className="secao-titulo">Equipe</h2></div>
-          {linhas.length === 0 ? <p className="vazio">Nenhum perfil cadastrado.</p> : (
-            <div className="tabela-caixa">
-              <table className="tabela">
-                <thead><tr><th>Pessoa</th><th>Perfil</th><th>Escopo</th><th>Situação</th>{eAdmin ? <th><span className="sr-only">Ações</span></th> : null}</tr></thead>
-                <tbody>
-                  {linhas.map((l) => (
-                    <tr key={l.id}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{nomes.get(l.user_id) ?? '—'}</div>
-                        <div className="legenda">{emails.get(l.user_id) ?? ''}</div>
-                      </td>
-                      <td>{ROTULO_PAPEL[l.papel]}</td>
-                      <td className="muted">{[l.turma?.nome, l.componente?.nome].filter(Boolean).join(' · ') || 'Escola toda'}</td>
-                      <td><Selo tom={l.ativo ? 'verde' : 'neutro'}>{l.ativo ? 'Ativo' : 'Desativado'}</Selo></td>
-                      {eAdmin ? (
-                        <td>
-                          {l.user_id === sessao.userId && l.papel === 'admin' ? null : (
-                            <form action={alternarPerfil}>
+          {pessoasEquipe.length === 0 ? <p className="vazio">Nenhum perfil cadastrado.</p> : (
+            <ul className="lista-linhas" style={{ padding: '0 20px' }}>
+              {pessoasEquipe.map(([userId, perfis]) => (
+                <li key={userId} style={{ alignItems: 'flex-start' }}>
+                  <div className="cresce" style={{ minWidth: 200 }}>
+                    <div style={{ fontWeight: 600 }}>
+                      {nomes.get(userId) ?? '—'}
+                      {userId === sessao.userId ? <span className="legenda"> (você)</span> : null}
+                    </div>
+                    <div className="legenda">{emails.get(userId) ?? ''}</div>
+                  </div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6, flex: '2 1 320px' }}>
+                    {perfis.map((l) => {
+                      const escopo = [l.turma?.nome, l.componente?.nome].filter(Boolean).join(' · ');
+                      return (
+                        <li key={l.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                          <Selo tom={l.ativo ? 'verde' : 'neutro'}>
+                            {ROTULO_PAPEL[l.papel]}{l.ativo ? '' : ' (desativado)'}
+                          </Selo>
+                          {escopo ? <span className="legenda">{escopo}</span> : null}
+                          {eAdmin && !(userId === sessao.userId && l.papel === 'admin') ? (
+                            <form action={alternarPerfil} style={{ marginLeft: 'auto' }}>
                               <input type="hidden" name="id" value={l.id} />
                               <input type="hidden" name="ativo" value={String(l.ativo)} />
-                              <Botao type="submit" tamanho="sm" variante={l.ativo ? 'perigo' : 'secundario'}>
+                              <Botao type="submit" tamanho="sm" variante="texto" aria-label={`${l.ativo ? 'Desativar' : 'Reativar'} o perfil ${ROTULO_PAPEL[l.papel]} de ${nomes.get(userId) ?? 'esta pessoa'}`}>
                                 {l.ativo ? 'Desativar' : 'Reativar'}
                               </Botao>
                             </form>
-                          )}
-                        </td>
-                      ) : null}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              ))}
+            </ul>
           )}
         </section>
         {eAdmin ? (
