@@ -26,6 +26,11 @@ export async function entrar(_: EstadoEntrar, form: FormData): Promise<EstadoEnt
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.auth.signInWithPassword({ email: dados.data.email, password: dados.data.senha });
   if (error) {
+    // Detalhe técnico só no log do servidor; para a tela, mensagem neutra.
+    console.error('[entrar] falha no login:', error.code ?? error.status, error.message);
+    if (error.code === 'email_provider_disabled') {
+      return { erro: 'O login por e-mail está desativado no servidor. Avise o administrador.', email: dados.data.email };
+    }
     return { erro: 'E-mail ou senha incorretos.', email: dados.data.email };
   }
   redirect(destinoSeguro(dados.data.voltar));
