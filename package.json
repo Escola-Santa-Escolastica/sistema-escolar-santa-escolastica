@@ -8,7 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test:db": "bash supabase/tests/run.sh"
+    "test:db": "bash supabase/tests/run.sh",
+    "local": "powershell -ExecutionPolicy Bypass -File scripts/iniciar-local.ps1",
+    "criar-admin": "node scripts/criar-admin.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -23,6 +25,7 @@
     "@types/node": "22.18.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
+    "supabase": "2.120.0",
     "typescript": "5.9.3"
   }
 }

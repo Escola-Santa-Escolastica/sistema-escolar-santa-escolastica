@@ -42,6 +42,26 @@ Regras do fluxo de matrícula (no banco, função `mudar_status_matricula`):
 
 Toda alteração em dados de alunos, matrículas e perfis é gravada na tabela `auditoria`.
 
+## Testar no seu computador (Windows)
+
+Precisa ter instalado: [Docker Desktop](https://www.docker.com/products/docker-desktop) (aberto), [Node.js LTS](https://nodejs.org) e [Git](https://git-scm.com).
+
+```powershell
+git clone https://github.com/Escola-Santa-Escolastica/sistema-escolar-santa-escolastica.git
+cd sistema-escolar-santa-escolastica
+npm run local
+```
+
+O script sobe o banco de dados local (Supabase no Docker), aplica as tabelas e permissões, cria turmas de teste, cria o login de administrador e abre http://localhost:3000. A senha provisória aparece no terminal. Para gerar outra: `npm run local -- -NovaSenha`.
+
+| Endereço | O que é |
+| --- | --- |
+| http://localhost:3000 | O sistema |
+| http://localhost:54324 | Caixa de e-mails de teste (convites e troca de senha) |
+| http://localhost:54323 | Supabase Studio (ver as tabelas) |
+
+Para parar: `Ctrl+C` e depois `npx supabase stop`. Os dados ficam guardados para a próxima vez.
+
 ## Colocando no ar
 
 ### 1. Supabase
