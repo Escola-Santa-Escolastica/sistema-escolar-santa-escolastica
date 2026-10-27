@@ -22,6 +22,8 @@ h1, h2, h3 { margin: 0; }
 /* ---------- Estrutura ---------- */
 .cabecalho { background: var(--verde-profundo); color: #fff; }
 .cabecalho-faixa { height: 3px; background: var(--dourado); }
+.faixa-teste { background: var(--dourado-soft); color: var(--ink); border-bottom: 1px solid var(--dourado); padding: 8px 24px; font-size: 14px; line-height: 20px; text-align: center; }
+.faixa-teste strong { color: var(--dourado-ink); }
 .cabecalho-inner { max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; }
 .marca { display: flex; align-items: center; gap: 12px; flex-grow: 1; color: #fff; text-decoration: none; }
 .marca-emblema { width: 44px; height: auto; flex: none; }

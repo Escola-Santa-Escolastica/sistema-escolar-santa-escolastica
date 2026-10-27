@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { FaixaTeste } from '@/components/faixa-teste';
 import './tokens.css';
 import './globals.css';
 
@@ -20,7 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <FaixaTeste />
+        {children}
+      </body>
     </html>
   );
 }

@@ -85,6 +85,9 @@ select id as turma_pre1 from public.turmas where nome = 'Pré I · Manhã' \gset
 \echo '--- Anônimo'
 set role anon;
 select tst.falha('select * from public.alunos', 'anônimo não lê alunos', 'permission denied');
+select tst.falha('select * from public.vw_matriculas', 'anônimo não lê a visão de matrículas', 'permission denied');
+select tst.falha('select public.mudar_status_matricula(gen_random_uuid(), ''matriculado'')', 'anônimo não executa funções do sistema', 'permission denied');
+select tst.falha('select public.criar_matricula(''{}''::jsonb)', 'anônimo não chama criar_matricula', 'permission denied');
 reset role;
 
 -- =====================================================================

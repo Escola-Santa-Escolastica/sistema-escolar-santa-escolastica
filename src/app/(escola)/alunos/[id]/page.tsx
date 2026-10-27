@@ -49,7 +49,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
         <div className="topo-texto" style={{ minWidth: 320 }}>
           <CartaoAluno
             nome={nome}
-            meta={[atual?.etapa.nome, atual?.turma?.nome ?? null, idade !== null ? `${idade} anos` : null].filter(Boolean).join(' · ')}
+            meta={[atual ? (atual.turma?.nome ?? `${atual.etapa.nome} · ${TURNOS[atual.turno_pretendido]}`) : null, idade !== null ? `${idade} anos` : null].filter(Boolean).join(' · ')}
             alertas={alertas}
           />
         </div>

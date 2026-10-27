@@ -62,6 +62,32 @@ O script sobe o banco de dados local (Supabase no Docker), aplica as tabelas e p
 
 Para parar: `Ctrl+C` e depois `npx supabase stop`. Os dados ficam guardados para a próxima vez.
 
+## Ambiente de teste online (para outras pessoas testarem)
+
+Um site com **dados fictícios** e um login por perfil, para a equipe testar pelo celular ou computador. Uma faixa no topo avisa que é ambiente de teste. Não use para dados reais de crianças.
+
+1. **Supabase:** crie um projeto (região South America – São Paulo). Na sua pasta do projeto, no PowerShell:
+   ```powershell
+   npx supabase login
+   npx supabase link --project-ref SEU_PROJECT_REF   # pede a senha do banco
+   npx supabase db push                              # cria tabelas, regras e permissões
+   ```
+2. **Supabase › Authentication › Sign In / Providers:** desligue *Allow new users to sign up* (deixe o provedor Email ligado).
+3. **Vercel:** *Add New › Project*, importe o repositório e cadastre as variáveis de ambiente:
+
+   | Variável | Valor |
+   | --- | --- |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL do Supabase |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key |
+   | `SUPABASE_SECRET_KEY` | Secret key |
+   | `NEXT_PUBLIC_SITE_URL` | o endereço que a Vercel der (ex.: https://sistema-escolar.vercel.app) |
+   | `NEXT_PUBLIC_AMBIENTE` | `teste` |
+
+4. **Supabase › Authentication › URL Configuration:** *Site URL* = o endereço da Vercel; em *Redirect URLs* adicione `https://SEU-ENDERECO/auth/confirmar`.
+5. **Dados de teste:** na pasta do projeto, rode `npm run popular-teste` e informe o Project URL, as duas chaves e uma senha. O script cria 6 logins de teste (direção, coordenação, secretaria, professora, auxiliar e mãe), 9 crianças fictícias com matrículas em situações diferentes e, se quiser, o seu login de administrador. Pode rodar de novo sem duplicar nada.
+
+O plano gratuito do Supabase pausa o projeto depois de 7 dias sem uso; basta reativar no painel.
+
 ## Colocando no ar
 
 ### 1. Supabase

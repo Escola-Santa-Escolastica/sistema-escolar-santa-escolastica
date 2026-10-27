@@ -74,7 +74,7 @@ export default async function Alunos({ searchParams }: { searchParams: Promise<{
                   <div className="cresce">
                     <Link href={`/alunos/${a.id}`} style={{ fontWeight: 600, color: 'var(--ink)', textDecoration: 'none' }}>{nome}</Link>
                     <div className="legenda">
-                      {[a.atual?.etapa.nome, a.atual?.turma?.nome ?? (a.atual ? 'sem turma' : 'sem matrícula neste ano'), idade !== null ? `${idade} anos` : null]
+                      {[a.atual ? (a.atual.turma?.nome ?? `${a.atual.etapa.nome} · sem turma`) : 'sem matrícula neste ano', idade !== null ? `${idade} anos` : null]
                         .filter(Boolean).join(' · ')}
                     </div>
                   </div>

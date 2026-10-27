@@ -60,7 +60,7 @@ export default async function Familia() {
             <section key={f.aluno_id} style={{ display: 'grid', gap: 12 }} aria-label={f.aluno_nome_social || f.aluno_nome}>
               <CartaoAluno
                 nome={f.aluno_nome_social || f.aluno_nome}
-                meta={[f.etapa_nome, f.turma_nome ?? TURNOS[f.turno_pretendido], String(f.ano)].join(' · ')}
+                meta={[f.turma_nome ?? `${f.etapa_nome} · ${TURNOS[f.turno_pretendido]}`, String(f.ano)].join(' · ')}
                 alertas={alertasDe(al, al?.possui_laudo)}
               />
               <div className="painel" style={{ display: 'grid', gap: 8 }}>
