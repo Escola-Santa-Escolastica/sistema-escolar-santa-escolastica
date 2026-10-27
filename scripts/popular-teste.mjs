@@ -13,7 +13,7 @@
 // confere documentos, direção aprova, secretaria enturma), com os logins
 // de teste — então o script também testa as regras do banco.
 // =====================================================================
-import { createInterface } from 'node:readline/promises';
+import { createInterface } from 'node:readline';
 import { randomInt } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
@@ -93,14 +93,22 @@ const CRIANCAS = [
 ];
 
 // ---------- utilitários ----------
-const rl = createInterface({ input: process.stdin, output: process.stdout });
+// Lê respostas linha a linha numa fila: funciona digitando, colando várias linhas ou com entrada redirecionada.
+const rl = createInterface({ input: process.stdin, terminal: false });
+const linhas = [];
+const esperando = [];
+let fimDaEntrada = false;
+rl.on('line', (l) => (esperando.length ? esperando.shift()(l) : linhas.push(l)));
+rl.on('close', () => { fimDaEntrada = true; while (esperando.length) esperando.shift()(''); });
 async function perguntar(texto, padrao) {
-  const r = (await rl.question(padrao ? `${texto} [${padrao}]: ` : `${texto}: `)).trim();
+  process.stdout.write(padrao ? `${texto} [${padrao}]: ` : `${texto}: `);
+  const linha = linhas.length ? linhas.shift() : fimDaEntrada ? '' : await new Promise((r) => esperando.push(r));
+  const r = linha.trim();
   return r || padrao || '';
 }
+class Falha extends Error {}
 function falhar(msg, erro) {
-  console.error(`\nERRO: ${msg}${erro ? ` (${erro.message ?? erro})` : ''}`);
-  process.exit(1);
+  throw new Falha(`${msg}${erro ? ` (${erro.message ?? erro})` : ''}`);
 }
 function ok(r, msg) {
   if (r.error) falhar(msg, r.error);
@@ -120,13 +128,19 @@ function lerEnvLocal() {
   return env;
 }
 
+async function main() {
 // ---------- configuração ----------
 const local = lerEnvLocal();
 const naoInterativo = process.argv.includes('--sim');
-const url = process.env.SUPABASE_URL || (naoInterativo ? local.NEXT_PUBLIC_SUPABASE_URL : await perguntar('Endereço do projeto (Project URL)', local.NEXT_PUBLIC_SUPABASE_URL));
-const publica = process.env.SUPABASE_PUBLISHABLE_KEY || (naoInterativo ? local.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY : await perguntar('Chave pública (Publishable key)', local.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY));
-const secreta = process.env.SUPABASE_SECRET_KEY || (naoInterativo ? local.SUPABASE_SECRET_KEY : await perguntar('Chave secreta (Secret key)', local.SUPABASE_SECRET_KEY ? '(a do .env.local)' : ''));
-const chaveSecreta = secreta === '(a do .env.local)' ? local.SUPABASE_SECRET_KEY : secreta;
+const url = (process.env.SUPABASE_URL || (naoInterativo ? local.NEXT_PUBLIC_SUPABASE_URL
+  : await perguntar('Endereço do projeto (Project URL), ex.: https://xxxx.supabase.co'))).replace(/\/+$/, '');
+// As chaves do .env.local são do banco do SEU computador: só servem se o endereço for o local.
+const usaLocal = Boolean(url) && url === (local.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
+const publica = process.env.SUPABASE_PUBLISHABLE_KEY || (naoInterativo || usaLocal ? local.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  : await perguntar('Chave pública (Publishable key) — cole da página API Keys'));
+const chaveSecreta = process.env.SUPABASE_SECRET_KEY || (naoInterativo || usaLocal ? local.SUPABASE_SECRET_KEY
+  : await perguntar('Chave secreta (Secret key) — cole da página API Keys'));
+if (usaLocal && !naoInterativo) console.log('   (usando as chaves do banco local, do arquivo .env.local)');
 if (!url || !publica || !chaveSecreta) falhar('Faltou o endereço ou alguma das chaves.');
 const senha = process.env.SENHA_TESTE || (naoInterativo ? senhaAleatoria() : await perguntar('Senha para os logins de teste (Enter = gerar uma)', '')) || senhaAleatoria();
 if (senha.length < 8) falhar('A senha precisa ter pelo menos 8 caracteres.');
@@ -250,3 +264,19 @@ console.log(` Senha de todos os logins de teste: ${senha}\n`);
 for (const l of LOGINS) console.log(` ${l.email.padEnd(42)} ${l.nome.replace(' (teste)', '')} — ${l.papeis.map((p) => ({ direcao: 'Direção', coordenacao: 'Coordenação', secretaria: 'Secretaria', professor_regente: 'Professora do Pré II · Manhã', auxiliar: 'Auxiliar do Pré II · Manhã', responsavel: 'Mãe da Maria Clara e do Lucas' }[p])).join(', ')}`);
 if (adminEmail) console.log(`\n Seu login: ${adminEmail}  ${senhaAdmin ? `(senha: ${senhaAdmin})` : '(senha: a mesma de antes)'}`);
 console.log('');
+}
+
+try {
+  await main();
+} catch (e) {
+  rl.close();
+  if (e instanceof Falha) {
+    console.error(`\nERRO: ${e.message}`);
+    if (/Invalid API key/i.test(e.message)) {
+      console.error('Confira se colou a Publishable key e a Secret key do MESMO projeto do endereço informado.');
+    }
+  } else {
+    console.error('\nERRO inesperado:', e);
+  }
+  process.exitCode = 1;
+}
