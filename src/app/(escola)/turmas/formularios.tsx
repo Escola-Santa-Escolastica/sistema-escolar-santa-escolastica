@@ -35,7 +35,7 @@ export function FormularioAno() {
       {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <Campo rotulo="Ano" name="ano" type="number" min={2024} max={2100} obrigatorio />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="lado-a-lado">
         <Campo rotulo="Início das aulas" name="inicio" type="date" />
         <Campo rotulo="Fim das aulas" name="fim" type="date" />
       </div>

@@ -48,11 +48,11 @@ export default async function Alunos({ searchParams }: { searchParams: Promise<{
           <p className="topo-sub">{ano ? `Ano letivo ${ano.ano}` : ''}{nomeTurma ? ` · ${nomeTurma}` : ''}</p>
           <h1 className="titulo">Alunos</h1>
         </div>
-        <form role="search" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+        <form role="search" className="busca">
           {turma ? <input type="hidden" name="turma" value={turma} /> : null}
-          <div className="se-campo">
+          <div className="se-campo busca-campo">
             <label htmlFor="busca" className="se-campo-rotulo">Buscar aluno</label>
-            <input id="busca" name="busca" defaultValue={busca} className="se-campo-input" placeholder="Nome" style={{ width: 240 }} />
+            <input id="busca" name="busca" defaultValue={busca} className="se-campo-input" placeholder="Nome" />
           </div>
           <button type="submit" className="se-btn se-btn-secundario se-btn-md">Buscar</button>
         </form>

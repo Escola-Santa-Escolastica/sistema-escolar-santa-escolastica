@@ -28,6 +28,10 @@ export async function entrar(_: EstadoEntrar, form: FormData): Promise<EstadoEnt
   if (error) {
     // Detalhe técnico só no log do servidor; para a tela, mensagem neutra.
     console.error('[entrar] falha no login:', error.code ?? error.status, error.message);
+    // status 0 = não chegou ao servidor (sem conexão, servidor fora do ar)
+    if (!error.status || error.name === 'AuthRetryableFetchError') {
+      return { erro: 'Não foi possível conectar ao servidor. Confira a internet e tente de novo em instantes.', email: dados.data.email };
+    }
     if (error.code === 'email_provider_disabled') {
       return { erro: 'O login por e-mail está desativado no servidor. Avise o administrador.', email: dados.data.email };
     }

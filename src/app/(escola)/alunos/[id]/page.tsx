@@ -46,7 +46,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
       <nav aria-label="Caminho" className="caminho"><Link href="/alunos">Alunos</Link> / {nome}</nav>
 
       <div className="topo">
-        <div className="topo-texto" style={{ minWidth: 320 }}>
+        <div className="topo-texto" style={{ flex: '1 1 280px', minWidth: 0 }}>
           <CartaoAluno
             nome={nome}
             meta={[atual ? (atual.turma?.nome ?? `${atual.etapa.nome} · ${TURNOS[atual.turno_pretendido]}`) : null, idade !== null ? `${idade} anos` : null].filter(Boolean).join(' · ')}

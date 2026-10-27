@@ -75,7 +75,7 @@ h1, h2, h3 { margin: 0; }
 }
 
 /* ---------- Tabela ---------- */
-.tabela-caixa { overflow-x: auto; }
+.tabela-caixa { overflow-x: auto; position: relative; } /* relative: rótulos só para leitor de tela ficam dentro da rolagem */
 .tabela { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 22px; }
 .tabela th { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-muted); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface-sunken); white-space: nowrap; }
 .tabela td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
@@ -104,9 +104,9 @@ h1, h2, h3 { margin: 0; }
 .aviso-ok { background: var(--verde-soft); color: var(--verde); }
 
 /* ---------- Botao ---------- */
-.se-btn { font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--verde); cursor: pointer; text-decoration: none; white-space: nowrap; }
-.se-btn-md { height: 44px; padding: 0 var(--space-4); font-size: 16px; }
-.se-btn-sm { height: 36px; padding: 0 var(--space-3); font-size: 14px; }
+.se-btn { font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--verde); cursor: pointer; text-decoration: none; text-align: center; }
+.se-btn-md { min-height: 44px; padding: 8px var(--space-4); font-size: 16px; line-height: 22px; }
+.se-btn-sm { min-height: 36px; padding: 6px var(--space-3); font-size: 14px; line-height: 20px; }
 .se-btn-primario { background: var(--verde); border-color: var(--verde); color: var(--on-verde); }
 .se-btn-primario:hover { color: var(--on-verde); }
 .se-btn-texto { background: transparent; border-color: transparent; }
@@ -118,7 +118,7 @@ h1, h2, h3 { margin: 0; }
 .acoes { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
 /* ---------- Selo ---------- */
-.se-selo { display: inline-flex; align-items: center; font-size: 13px; line-height: 18px; font-weight: 600; padding: 2px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--ink); white-space: nowrap; }
+.se-selo { display: inline-flex; align-items: center; font-size: 13px; line-height: 18px; font-weight: 600; padding: 2px var(--space-2); border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--ink); max-width: 100%; overflow-wrap: anywhere; }
 .se-selo-verde { background: var(--verde-soft); color: var(--verde); }
 .se-selo-dourado { background: var(--dourado-soft); color: var(--dourado-ink); }
 .se-selo-alerta { background: var(--alerta-soft); color: var(--alerta); }
@@ -154,7 +154,7 @@ fieldset.bloco { border: 0; margin: 0; padding: 0; }
 .se-avatar { display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: var(--radius-full); background: var(--verde-soft); color: var(--verde); font-weight: 700; object-fit: cover; }
 .se-avatar-md { width: 40px; height: 40px; font-size: 15px; }
 .se-avatar-lg { width: 56px; height: 56px; font-size: 19px; }
-.se-cartao { display: flex; gap: var(--space-4); align-items: flex-start; padding: var(--space-4); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.se-cartao { min-width: 0; display: flex; gap: var(--space-4); align-items: flex-start; padding: var(--space-4); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 .se-cartao-corpo { flex: 1; min-width: 0; }
 .se-cartao-nome { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; color: var(--ink); }
 .se-cartao-meta { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
@@ -162,9 +162,36 @@ fieldset.bloco { border: 0; margin: 0; padding: 0; }
 .se-cartao-acao { flex: none; align-self: center; }
 
 /* ---------- Entrar ---------- */
-.entrar { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--surface); }
-.entrar-caixa { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
+.entrar { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: var(--surface); }
+.entrar-caixa { width: 100%; max-width: 420px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
 .entrar-marca { text-align: center; }
 .entrar-emblema { width: 170px; height: auto; margin: 0 auto; display: block; }
 .entrar-marca .marca-nome { color: var(--verde-profundo); font-size: 30px; line-height: 36px; }
 .entrar-marca .marca-lema { color: var(--dourado-ink); margin-top: 6px; display: block; }
+
+/* Busca: campo e botão lado a lado, encolhendo até caber */
+.busca { display: flex; gap: 8px; align-items: flex-end; min-width: 0; }
+.busca-campo { width: 260px; min-width: 0; }
+/* Dois campos curtos lado a lado (ex.: início e fim, tipo sanguíneo e RH) */
+.lado-a-lado { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.se-campo-input { min-width: 0; }
+
+/* ---------- Celular ---------- */
+.faixa-curta { display: none; }
+@media (max-width: 600px) {
+  .faixa-teste { padding: 6px 16px; font-size: 13px; line-height: 18px; }
+  .faixa-longa { display: none; }
+  .faixa-curta { display: inline; }
+  .pagina { padding: 20px 16px 40px; gap: 20px; }
+  .painel { padding: 16px; }
+  .painel-sem-padding { padding: 0; }
+  .painel-sem-padding .painel-cab { padding: 16px 16px 0; }
+  .titulo { font-size: 30px; line-height: 34px; }
+  .cabecalho-inner { padding: 12px 16px; }
+  /* entrar: conteúdo no alto (o teclado do celular cobre a metade de baixo) */
+  .entrar { justify-content: flex-start; padding: 24px 16px 32px; }
+  .entrar-caixa { gap: 16px; }
+  .entrar-emblema { width: 112px; }
+  .busca { width: 100%; }
+  .busca-campo { flex: 1; width: auto; }
+}

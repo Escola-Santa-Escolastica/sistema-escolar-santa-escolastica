@@ -7,7 +7,9 @@ export function FaixaTeste() {
   if (process.env.NEXT_PUBLIC_AMBIENTE !== 'teste') return null;
   return (
     <div role="note" className="faixa-teste">
-      <strong>Ambiente de teste.</strong> Use apenas dados fictícios: nada aqui é real e tudo pode ser apagado.
+      <strong>Ambiente de teste.</strong>{' '}
+      <span className="faixa-longa">Use apenas dados fictícios: nada aqui é real e tudo pode ser apagado.</span>
+      <span className="faixa-curta">Use só dados fictícios.</span>
     </div>
   );
 }

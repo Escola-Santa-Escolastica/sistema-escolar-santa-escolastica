@@ -54,11 +54,11 @@ export default async function Matriculas({ searchParams }: { searchParams: Promi
           <p className="topo-sub">{ano ? `Ano letivo ${ano.ano}` : 'Nenhum ano letivo ativo'}</p>
           <h1 className="titulo">Matrículas</h1>
         </div>
-        <form role="search" style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+        <form role="search" className="busca">
           {status ? <input type="hidden" name="status" value={status} /> : null}
-          <div className="se-campo">
+          <div className="se-campo busca-campo">
             <label htmlFor="busca" className="se-campo-rotulo">Buscar</label>
-            <input id="busca" name="busca" defaultValue={termo} className="se-campo-input" placeholder="Nome ou nº de matrícula" style={{ width: 260 }} />
+            <input id="busca" name="busca" defaultValue={termo} className="se-campo-input" placeholder="Nome ou nº de matrícula" />
           </div>
           <button type="submit" className="se-btn se-btn-secundario se-btn-md">Buscar</button>
         </form>

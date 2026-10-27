@@ -86,7 +86,7 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
           <option value="">Não informado</option>
           {Object.entries(CORES_RACA).map(([v, r]) => <option key={v} value={v}>{r}</option>)}
         </CampoSelect>
-        <div className="c-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="c-2 lado-a-lado">
           <CampoSelect rotulo="Tipo sanguíneo" name="aluno.tipo_sanguineo" defaultValue="">
             <option value="">—</option>
             {['A', 'B', 'AB', 'O'].map((t) => <option key={t}>{t}</option>)}
