@@ -7,8 +7,8 @@
 #   powershell -ExecutionPolicy Bypass -File scripts\iniciar-local.ps1
 # =====================================================================
 param(
-  [string]$Email = "joseluizmacielp@gmail.com",
-  [string]$Nome = "José Luiz Maciel Pimenta",
+  [string]$Email = "",
+  [string]$Nome = "",
   [switch]$NovaSenha
 )
 
@@ -65,6 +65,12 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # 5. Seu login de administrador
 Passo "Criando o seu login de administrador"
+$arquivoAdmin = Join-Path (Get-Location) "supabase\.temp\admin-local.txt"
+if (-not $Email -and (Test-Path $arquivoAdmin)) { $Email, $Nome = Get-Content $arquivoAdmin -Encoding UTF8 }
+if (-not $Email) { $Email = Read-Host "Seu e-mail para o login de administrador" }
+if (-not $Nome) { $Nome = Read-Host "Seu nome completo" }
+New-Item -ItemType Directory -Force -Path (Split-Path $arquivoAdmin) | Out-Null
+[System.IO.File]::WriteAllLines($arquivoAdmin, @($Email, $Nome), (New-Object System.Text.UTF8Encoding $false))
 if ($NovaSenha) { node scripts/criar-admin.mjs $Email $Nome --nova-senha } else { node scripts/criar-admin.mjs $Email $Nome }
 if ($LASTEXITCODE -ne 0) { Parar "Falha ao criar o login de administrador." }
 
