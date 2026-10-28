@@ -132,6 +132,19 @@ select tst.ok((select numero from public.matriculas where id = :'mat_maria') = '
 select tst.ok((select status from public.matriculas where id = :'mat_maria') = 'em_analise', 'matrícula da secretaria nasce em análise');
 select tst.ok(tst.conta(format('select * from public.documentos_entregues where matricula_id = %L', :'mat_maria')) = 8, 'checklist com 8 documentos criado');
 select tst.ok(tst.conta('select * from public.pessoas where cpf = ''55566677788''') = 1, 'mãe com dois filhos é uma pessoa só (CPF reaproveitado)');
+select tst.falha($q$select public.criar_matricula(jsonb_build_object(
+  'aluno', jsonb_build_object('nome', 'Outra Criança', 'data_nascimento', '2022-05-05', 'cpf', '11122233344'),
+  'responsaveis', '[]'::jsonb, 'matricula', jsonb_build_object('etapa_id', (select id from public.etapas limit 1), 'turno_pretendido', 'manha')))$q$,
+  'não recadastra criança com CPF já cadastrado', 'Já existe uma criança cadastrada com este CPF');
+select tst.falha($q$select public.criar_matricula(jsonb_build_object(
+  'aluno', jsonb_build_object('nome', 'Outra Criança', 'data_nascimento', '2022-05-05', 'cpf', '55566677788'),
+  'responsaveis', '[]'::jsonb, 'matricula', jsonb_build_object('etapa_id', (select id from public.etapas limit 1), 'turno_pretendido', 'manha')))$q$,
+  'não usa o CPF de um responsável para a criança', 'já está cadastrado para Juliana Souza');
+select tst.falha($q$select public.criar_matricula(jsonb_build_object(
+  'aluno', jsonb_build_object('nome', '  pedro henrique lima ', 'data_nascimento', '2023-01-20'),
+  'responsaveis', '[]'::jsonb, 'matricula', jsonb_build_object('etapa_id', (select id from public.etapas limit 1), 'turno_pretendido', 'manha')))$q$,
+  'não recadastra criança com mesmo nome e nascimento', 'mesmo nome e data de nascimento');
+select tst.ok(tst.conta('select * from public.alunos') = 3, 'tentativas duplicadas não criaram alunos');
 
 select tst.falha(format('update public.matriculas set status = ''matriculado'' where id = %L', :'mat_maria'),
   'situação não muda por UPDATE direto', 'só muda pelo fluxo');

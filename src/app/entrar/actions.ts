@@ -1,8 +1,11 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { criarClienteSupabase } from '@/lib/supabase/server';
+import { mensagemValidacao } from '@/lib/ficha';
+import { COOKIE_ATIVIDADE, opcoesCookieAtividade } from '@/lib/limite-sessao';
 
 export type EstadoEntrar = { erro?: string; email?: string };
 
@@ -20,7 +23,7 @@ function destinoSeguro(voltar?: string) {
 export async function entrar(_: EstadoEntrar, form: FormData): Promise<EstadoEntrar> {
   const dados = esquema.safeParse(Object.fromEntries(form));
   if (!dados.success) {
-    return { erro: dados.error.issues[0]?.message, email: String(form.get('email') ?? '') };
+    return { erro: mensagemValidacao(dados), email: String(form.get('email') ?? '') };
   }
 
   const supabase = await criarClienteSupabase();
@@ -37,12 +40,15 @@ export async function entrar(_: EstadoEntrar, form: FormData): Promise<EstadoEnt
     }
     return { erro: 'E-mail ou senha incorretos.', email: dados.data.email };
   }
+  // Começa a contar o tempo de uso da sessão (ver lib/limite-sessao).
+  (await cookies()).set(COOKIE_ATIVIDADE, String(Date.now()), opcoesCookieAtividade());
   redirect(destinoSeguro(dados.data.voltar));
 }
 
 export async function sair() {
   const supabase = await criarClienteSupabase();
   await supabase.auth.signOut();
+  (await cookies()).delete(COOKIE_ATIVIDADE);
   redirect('/entrar');
 }
 

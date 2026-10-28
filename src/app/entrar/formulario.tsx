@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import { entrar, enviarLinkSenha, type EstadoEntrar } from './actions';
 import { Aviso, Botao, Campo } from '@/components/ui';
 
-export function FormularioEntrar({ voltar }: { voltar?: string }) {
+export function FormularioEntrar({ voltar, aviso }: { voltar?: string; aviso?: string }) {
   const [esqueci, setEsqueci] = useState(false);
   const [estado, acao, enviando] = useActionState<EstadoEntrar, FormData>(entrar, {});
   const [estadoLink, acaoLink, enviandoLink] = useActionState<EstadoEntrar, FormData>(enviarLinkSenha, {});
@@ -29,7 +29,7 @@ export function FormularioEntrar({ voltar }: { voltar?: string }) {
   return (
     <form action={acao} className="painel" style={{ display: 'grid', gap: 16 }}>
       <h1 className="secao-titulo">Entrar</h1>
-      {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : null}
+      {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : aviso ? <Aviso tipo="info">{aviso}</Aviso> : null}
       <input type="hidden" name="voltar" value={voltar ?? ''} />
       <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" defaultValue={estado.email} obrigatorio />
       <Campo rotulo="Senha" name="senha" type="password" autoComplete="current-password" obrigatorio />

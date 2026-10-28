@@ -1,3 +1,4 @@
+import { VigiaSessao } from '@/components/vigia-sessao';
 import type { Metadata } from 'next';
 import { exigirSessao } from '@/lib/sessao';
 import { criarClienteSupabase } from '@/lib/supabase/server';
@@ -57,9 +58,9 @@ export default async function Familia() {
           const al = alertaDe.get(f.aluno_id) as Parameters<typeof alertasDe>[0] & { possui_laudo?: boolean } | undefined;
           const docs = pend.filter((p) => p.matricula_id === f.id && p.tipo.obrigatorio);
           return (
-            <section key={f.aluno_id} style={{ display: 'grid', gap: 12 }} aria-label={f.aluno_nome_social || f.aluno_nome}>
+            <section key={f.aluno_id} style={{ display: 'grid', gap: 12 }} aria-label={f.aluno_nome}>
               <CartaoAluno
-                nome={f.aluno_nome_social || f.aluno_nome}
+                nome={f.aluno_nome}
                 meta={[f.turma_nome ?? `${f.etapa_nome} · ${TURNOS[f.turno_pretendido]}`, String(f.ano)].join(' · ')}
                 alertas={alertasDe(al, al?.possui_laudo)}
               />
@@ -79,6 +80,7 @@ export default async function Familia() {
             </section>
           );
         })}
+        <VigiaSessao />
         <p className="legenda" style={{ margin: 0 }}>
           Para corrigir algum dado (telefone, endereço, saúde), fale com a secretaria. Em breve você poderá fazer isso por aqui.
         </p>

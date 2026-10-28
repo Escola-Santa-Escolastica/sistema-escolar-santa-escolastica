@@ -42,6 +42,18 @@ Regras do fluxo de matrícula (no banco, função `mudar_status_matricula`):
 
 Toda alteração em dados de alunos, matrículas e perfis é gravada na tabela `auditoria`.
 
+A mesma criança não é cadastrada duas vezes: a nova matrícula é recusada se o CPF já existir na base (aviso na hora, com link para a ficha) ou se já houver uma criança com o mesmo nome e data de nascimento (função `criar_matricula`, migration 007).
+
+### Duração da sessão
+
+Regras em `src/lib/limite-sessao.ts`, aplicadas pelo `src/proxy.ts` a cada página:
+
+- **30 minutos sem uso** encerram a sessão (aviso na tela 2 minutos antes, com "Continuar conectado"). Quem está digitando ou rolando a tela continua conectado.
+- **12 horas** depois do login é preciso entrar de novo, mesmo usando.
+- Ao fechar o navegador, o registro de uso some e a próxima visita pede a senha.
+
+Ao encerrar, o sistema também revoga a sessão no Supabase (não basta guardar o cookie).
+
 ## Testar no seu computador (Windows)
 
 Precisa ter instalado: [Docker Desktop](https://www.docker.com/products/docker-desktop) (aberto), [Node.js LTS](https://nodejs.org) e [Git](https://git-scm.com).

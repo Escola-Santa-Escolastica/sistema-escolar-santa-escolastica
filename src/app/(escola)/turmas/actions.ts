@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { criarClienteSupabase } from '@/lib/supabase/server';
 import { exigirSessao } from '@/lib/sessao';
 import { mensagemErro } from '@/lib/erros';
+import { mensagemValidacao } from '@/lib/ficha';
 import { TURNOS } from '@/lib/formatos';
 
 export type EstadoTurma = { erro?: string; ok?: string };
@@ -19,7 +20,7 @@ const esquemaTurma = z.object({
 export async function criarTurma(_: EstadoTurma, form: FormData): Promise<EstadoTurma> {
   await exigirSessao(['coordenacao', 'secretaria']);
   const r = esquemaTurma.safeParse(Object.fromEntries(form));
-  if (!r.success) return { erro: r.error.issues[0]?.message };
+  if (!r.success) return { erro: mensagemValidacao(r) };
   const supabase = await criarClienteSupabase();
   const [{ data: ano }, { data: etapa }] = await Promise.all([
     supabase.from('anos_letivos').select('id').eq('ativo', true).maybeSingle(),
@@ -37,10 +38,12 @@ export async function criarTurma(_: EstadoTurma, form: FormData): Promise<Estado
 
 export async function alterarCapacidade(form: FormData) {
   await exigirSessao(['coordenacao', 'secretaria']);
-  const id = z.string().uuid().parse(form.get('id'));
-  const capacidade = z.coerce.number().int().min(1).max(60).parse(form.get('capacidade'));
+  const id = z.string().uuid().safeParse(form.get('id'));
+  const cap = z.coerce.number().int().min(1).max(60).safeParse(form.get('capacidade'));
+  if (!id.success || !cap.success) return;
+  const capacidade = cap.data;
   const supabase = await criarClienteSupabase();
-  await supabase.from('turmas').update({ capacidade }).eq('id', id);
+  await supabase.from('turmas').update({ capacidade }).eq('id', id.data);
   revalidatePath('/turmas');
 }
 
@@ -51,7 +54,7 @@ export async function criarAnoLetivo(_: EstadoTurma, form: FormData): Promise<Es
     inicio: z.string().optional().transform((v) => v || null),
     fim: z.string().optional().transform((v) => v || null),
   }).safeParse(Object.fromEntries(form));
-  if (!r.success) return { erro: r.error.issues[0]?.message };
+  if (!r.success) return { erro: mensagemValidacao(r) };
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.from('anos_letivos').insert({ ano: r.data.ano, inicio: r.data.inicio, fim: r.data.fim, ativo: false });
   if (error) return { erro: error.code === '23505' ? `O ano letivo ${r.data.ano} já existe.` : mensagemErro(error) };

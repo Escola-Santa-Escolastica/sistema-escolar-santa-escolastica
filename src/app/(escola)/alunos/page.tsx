@@ -31,7 +31,7 @@ export default async function Alunos({ searchParams }: { searchParams: Promise<{
   }));
   if (turma) alunos = alunos.filter((a) => a.atual?.turma?.id === turma);
   const termo = busca.trim().toLowerCase();
-  if (termo) alunos = alunos.filter((a) => `${a.pessoa.nome} ${a.pessoa.nome_social ?? ''}`.toLowerCase().includes(termo));
+  if (termo) alunos = alunos.filter((a) => a.pessoa.nome.toLowerCase().includes(termo));
   alunos.sort((a, b) => a.pessoa.nome.localeCompare(b.pessoa.nome, 'pt-BR'));
 
   const ids = alunos.map((a) => a.id);
@@ -67,7 +67,7 @@ export default async function Alunos({ searchParams }: { searchParams: Promise<{
             {alunos.map((a) => {
               const al = alertaDe.get(a.id);
               const idade = idadeEmAnos(a.pessoa.data_nascimento);
-              const nome = a.pessoa.nome_social || a.pessoa.nome;
+              const nome = a.pessoa.nome;
               return (
                 <li key={a.id}>
                   <Avatar nome={nome} />

@@ -102,6 +102,14 @@ h1, h2, h3 { margin: 0; }
 .aviso { border-radius: var(--radius-md); padding: 12px 16px; font-weight: 600; }
 .aviso-erro { background: var(--alerta-soft); color: var(--alerta); }
 .aviso-ok { background: var(--verde-soft); color: var(--verde); }
+.aviso-info { background: var(--azul-soft); color: var(--azul); }
+.aviso a { color: inherit; text-decoration: underline; }
+
+/* Aviso de sessão prestes a terminar (fixo no rodapé) */
+.aviso-sessao { position: fixed; z-index: 50; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(560px, calc(100% - 32px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 16px 20px; background: var(--surface-raised);
+  border: 1px solid var(--dourado); border-left-width: 6px; border-radius: var(--radius-lg); box-shadow: 0 8px 28px rgba(0, 0, 0, .18); }
+.aviso-sessao p { flex: 1 1 260px; }
 
 /* ---------- Botao ---------- */
 .se-btn { font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--verde); cursor: pointer; text-decoration: none; text-align: center; }
@@ -146,7 +154,8 @@ select.se-campo-input { padding-right: 32px; }
   .form-grade { grid-template-columns: minmax(0, 1fr); }
   .c-1, .c-2, .c-3, .c-4, .c-6 { grid-column: auto; }
 }
-fieldset.bloco { border: 0; margin: 0; padding: 0; }
+/* fieldset da ficha: mantém o respiro do .painel (antes ficava colado na borda) */
+fieldset.bloco { margin: 0; min-inline-size: 0; }
 .bloco-responsavel { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px; background: var(--surface); }
 .rodape-form { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 16px 0; display: flex; justify-content: flex-end; gap: 12px; }
 

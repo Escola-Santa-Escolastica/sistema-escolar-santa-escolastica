@@ -1,8 +1,11 @@
 'use client';
 
-import { useActionState, useState, startTransition, type FormEvent } from 'react';
-import { criarMatricula, type EstadoForm } from '../actions';
+import Link from 'next/link';
+import { useActionState, useRef, useState, startTransition, type FocusEvent, type FormEvent } from 'react';
+import { criarMatricula, verificarCpfAluno, type EstadoForm } from '../actions';
 import { Aviso, Botao, Campo, CampoSelect, CampoTexto, Check } from '@/components/ui';
+import { CampoCep, CampoCpf, CampoRg, CampoTelefone } from '@/components/campo-mascara';
+import { useFocoNoErro } from '@/components/foco-erro';
 import { CORES_RACA, TURNOS } from '@/lib/formatos';
 
 type Etapa = { id: string; nome: string };
@@ -31,9 +34,9 @@ function Responsavel({ indice, onRemover, padrao }: { indice: number; onRemover?
           <option value="mae">Mãe</option>
           <option value="pai">Pai</option>
         </CampoSelect>
-        <Campo className="c-2" rotulo="CPF" name={`${p}.cpf`} inputMode="numeric" placeholder="000.000.000-00" />
-        <Campo className="c-2" rotulo="RG" name={`${p}.rg`} />
-        <Campo className="c-2" rotulo="Telefone" name={`${p}.telefone`} inputMode="tel" placeholder="(37) 99999-9999" />
+        <CampoCpf className="c-2" rotulo="CPF" name={`${p}.cpf`} />
+        <CampoRg className="c-2" rotulo="RG" name={`${p}.rg`} />
+        <CampoTelefone className="c-2" rotulo="Telefone" name={`${p}.telefone`} />
         <Campo className="c-2" rotulo="E-mail" name={`${p}.email`} type="email" />
         <Campo className="c-2" rotulo="Profissão" name={`${p}.profissao`} />
         <div className="c-6" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px' }}>
@@ -58,6 +61,16 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
   ]);
   const [proximo, setProximo] = useState(2);
   const [laudo, setLaudo] = useState(false);
+  const [cpfExistente, setCpfExistente] = useState<EstadoForm | null>(null);
+  const ref = useRef<HTMLFormElement>(null);
+  useFocoNoErro(ref, estado);
+
+  // Confere o CPF da criança assim que a secretaria sai do campo.
+  async function conferirCpf(e: FocusEvent<HTMLInputElement>) {
+    const valor = e.currentTarget.value;
+    setCpfExistente(valor.replace(/\D/g, '').length === 11 ? await verificarCpfAluno(valor) : null);
+  }
+  const duplicado = estado.duplicado ?? cpfExistente?.duplicado;
 
   // Envio manual: assim o formulário não é limpo quando volta um erro.
   function enviar(e: FormEvent<HTMLFormElement>) {
@@ -68,12 +81,16 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
   }
 
   return (
-    <form onSubmit={enviar} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {estado.erro ? <Aviso tipo="erro">{estado.erro}</Aviso> : null}
+    <form ref={ref} onSubmit={enviar} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {estado.erro ? (
+        <Aviso tipo="erro">
+          {estado.erro}
+          {estado.duplicado ? <> <Link href={`/alunos/${estado.duplicado.alunoId}`}>Abrir a ficha de {estado.duplicado.nome}</Link></> : null}
+        </Aviso>
+      ) : null}
 
       <Secao numero={1} titulo="Identificação do aluno">
         <Campo className="c-4" rotulo="Nome completo" name="aluno.nome" obrigatorio autoComplete="off" />
-        <Campo className="c-2" rotulo="Nome social" name="aluno.nome_social" />
         <Campo className="c-2" rotulo="Data de nascimento" name="aluno.data_nascimento" type="date" obrigatorio />
         <Campo className="c-2" rotulo="Naturalidade" name="aluno.naturalidade" placeholder="Itapecerica/MG" />
         <Campo className="c-2" rotulo="Nacionalidade" name="aluno.nacionalidade" defaultValue="Brasileira" />
@@ -97,9 +114,18 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
             <option value="-">−</option>
           </CampoSelect>
         </div>
-        <Campo className="c-2" rotulo="CPF" name="aluno.cpf" inputMode="numeric" placeholder="000.000.000-00" />
+        <CampoCpf className="c-2" rotulo="CPF" name="aluno.cpf" onBlur={conferirCpf}
+          dica="Conferido na hora para não cadastrar a mesma criança duas vezes." />
+        {cpfExistente?.erro && !estado.erro ? (
+          <div className="c-6">
+            <Aviso tipo="erro">
+              {cpfExistente.erro}
+              {duplicado ? <> <Link href={`/alunos/${duplicado.alunoId}`}>Abrir a ficha de {duplicado.nome}</Link></> : null}
+            </Aviso>
+          </div>
+        ) : null}
         <Campo className="c-2" rotulo="Carteira de Identidade Nacional (CIN)" name="aluno.cin" />
-        <Campo className="c-2" rotulo="RG" name="aluno.rg" />
+        <CampoRg className="c-2" rotulo="RG" name="aluno.rg" />
         <Campo className="c-2" rotulo="Órgão Expedidor/Estado" name="aluno.rg_orgao_expedidor" placeholder="SSP/MG" />
         <Campo className="c-2" rotulo="Data de emissão do RG" name="aluno.rg_data_emissao" type="date" />
         <Campo className="c-3" rotulo="Nº do SUS (se possuir)" name="aluno.numero_sus" inputMode="numeric" />
@@ -131,7 +157,7 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
         <Campo className="c-3" rotulo="Nº da carteirinha" name="saude.convenio_carteirinha" />
         <CampoTexto className="c-6" rotulo="Observações importantes sobre a saúde do aluno" name="saude.observacoes" rows={2} />
         <Campo className="c-4" rotulo="Em caso de emergência, avisar" name="saude.emergencia_nome" />
-        <Campo className="c-2" rotulo="Telefone de emergência" name="saude.emergencia_telefone" inputMode="tel" />
+        <CampoTelefone className="c-2" rotulo="Telefone de emergência" name="saude.emergencia_telefone" />
       </Secao>
 
       <Secao numero={4} titulo="Dados escolares">
@@ -168,9 +194,9 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
         <Campo className="c-2" rotulo="Bairro" name="endereco.bairro" />
         <Campo className="c-2" rotulo="Cidade" name="endereco.cidade" defaultValue="Itapecerica" />
         <Campo className="c-1" rotulo="UF" name="endereco.uf" defaultValue="MG" maxLength={2} />
-        <Campo className="c-1" rotulo="CEP" name="endereco.cep" inputMode="numeric" placeholder="35550-000" />
-        <Campo className="c-3" rotulo="Telefone residencial" name="endereco.telefone_residencial" inputMode="tel" />
-        <Campo className="c-3" rotulo="Telefone celular" name="endereco.telefone_celular" inputMode="tel" />
+        <CampoCep className="c-1" rotulo="CEP" name="endereco.cep" />
+        <CampoTelefone className="c-3" rotulo="Telefone residencial (opcional)" name="endereco.telefone_residencial" placeholder="(37) 3333-3333" />
+        <CampoTelefone className="c-3" rotulo="Telefone celular" name="endereco.telefone_celular" />
       </Secao>
 
       <section className="painel" aria-labelledby="t-declaracao">

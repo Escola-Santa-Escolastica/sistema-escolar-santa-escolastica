@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation';
 import { exigirSessao } from '@/lib/sessao';
 import { criarClienteSupabase } from '@/lib/supabase/server';
 import { carregarFicha } from '@/lib/aluno';
-import { CORES_RACA, formatarCep, formatarCpf, formatarTelefone } from '@/lib/formatos';
+import { CORES_RACA, formatarTelefone } from '@/lib/formatos';
 import { Botao, Campo, CampoSelect, CampoTexto, Check, Selo } from '@/components/ui';
 import { FormSecao } from '@/components/form-secao';
+import { CampoCep, CampoCpf, CampoRg, CampoTelefone } from '@/components/campo-mascara';
 import {
   adicionarResponsavel, convidarFamilia, removerVinculo, salvarAtendimento, salvarEndereco, salvarIdentificacao, salvarSaude,
 } from '../../actions';
@@ -36,7 +37,6 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
       {eSecretaria ? (
         <FormSecao titulo="1. Identificação do aluno" acao={salvarIdentificacao} alunoId={id} rotuloBotao="Salvar identificação">
           <Campo className="c-4" rotulo="Nome completo" name="aluno.nome" defaultValue={p.nome} obrigatorio />
-          <Campo className="c-2" rotulo="Nome social" name="aluno.nome_social" defaultValue={p.nome_social ?? ''} />
           <Campo className="c-2" rotulo="Data de nascimento" name="aluno.data_nascimento" type="date" defaultValue={p.data_nascimento ?? ''} obrigatorio />
           <Campo className="c-2" rotulo="Naturalidade" name="aluno.naturalidade" defaultValue={aluno.naturalidade ?? ''} />
           <Campo className="c-2" rotulo="Nacionalidade" name="aluno.nacionalidade" defaultValue={aluno.nacionalidade} />
@@ -53,9 +53,9 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
           <CampoSelect className="c-1" rotulo="Fator RH" name="aluno.fator_rh" defaultValue={aluno.fator_rh ?? ''}>
             <option value="">—</option><option value="+">+</option><option value="-">−</option>
           </CampoSelect>
-          <Campo className="c-2" rotulo="CPF" name="aluno.cpf" defaultValue={formatarCpf(p.cpf)} inputMode="numeric" />
+          <CampoCpf className="c-2" rotulo="CPF" name="aluno.cpf" defaultValue={p.cpf ?? ''} />
           <Campo className="c-2" rotulo="CIN" name="aluno.cin" defaultValue={p.cin ?? ''} />
-          <Campo className="c-2" rotulo="RG" name="aluno.rg" defaultValue={p.rg ?? ''} />
+          <CampoRg className="c-2" rotulo="RG" name="aluno.rg" defaultValue={p.rg ?? ''} />
           <Campo className="c-2" rotulo="Órgão Expedidor/Estado" name="aluno.rg_orgao_expedidor" defaultValue={p.rg_orgao_expedidor ?? ''} />
           <Campo className="c-2" rotulo="Data de emissão do RG" name="aluno.rg_data_emissao" type="date" defaultValue={p.rg_data_emissao ?? ''} />
           <Campo className="c-3" rotulo="Nº do SUS" name="aluno.numero_sus" defaultValue={aluno.numero_sus ?? ''} />
@@ -110,8 +110,8 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
           <CampoSelect className="c-2" rotulo="Aparece na filiação como" name="resp.filiacao" defaultValue="">
             <option value="">Não aparece</option><option value="mae">Mãe</option><option value="pai">Pai</option>
           </CampoSelect>
-          <Campo className="c-2" rotulo="CPF" name="resp.cpf" inputMode="numeric" />
-          <Campo className="c-2" rotulo="Telefone" name="resp.telefone" inputMode="tel" />
+          <CampoCpf className="c-2" rotulo="CPF" name="resp.cpf" />
+          <CampoTelefone className="c-2" rotulo="Telefone" name="resp.telefone" />
           <Campo className="c-3" rotulo="E-mail" name="resp.email" type="email" />
           <Campo className="c-3" rotulo="Profissão" name="resp.profissao" />
           <div className="c-6" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px' }}>
@@ -133,7 +133,7 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
           <Campo className="c-3" rotulo="Nº da carteirinha" name="saude.convenio_carteirinha" defaultValue={saude?.convenio_carteirinha ?? ''} />
           <CampoTexto className="c-6" rotulo="Observações importantes" name="saude.observacoes" rows={2} defaultValue={saude?.observacoes ?? ''} />
           <Campo className="c-4" rotulo="Em caso de emergência, avisar" name="saude.emergencia_nome" defaultValue={saude?.emergencia_nome ?? ''} />
-          <Campo className="c-2" rotulo="Telefone de emergência" name="saude.emergencia_telefone" defaultValue={formatarTelefone(saude?.emergencia_telefone)} />
+          <CampoTelefone className="c-2" rotulo="Telefone de emergência" name="saude.emergencia_telefone" defaultValue={saude?.emergencia_telefone ?? ''} />
         </FormSecao>
       ) : null}
 
@@ -153,9 +153,9 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
           <Campo className="c-2" rotulo="Bairro" name="endereco.bairro" defaultValue={endereco?.bairro ?? ''} />
           <Campo className="c-2" rotulo="Cidade" name="endereco.cidade" defaultValue={endereco?.cidade ?? ''} />
           <Campo className="c-1" rotulo="UF" name="endereco.uf" maxLength={2} defaultValue={endereco?.uf ?? ''} />
-          <Campo className="c-1" rotulo="CEP" name="endereco.cep" defaultValue={formatarCep(endereco?.cep)} />
-          <Campo className="c-3" rotulo="Telefone residencial" name="endereco.telefone_residencial" defaultValue={formatarTelefone(endereco?.telefone_residencial)} />
-          <Campo className="c-3" rotulo="Telefone celular" name="endereco.telefone_celular" defaultValue={formatarTelefone(endereco?.telefone_celular)} />
+          <CampoCep className="c-1" rotulo="CEP" name="endereco.cep" defaultValue={endereco?.cep ?? ''} />
+          <CampoTelefone className="c-3" rotulo="Telefone residencial (opcional)" name="endereco.telefone_residencial" placeholder="(37) 3333-3333" defaultValue={endereco?.telefone_residencial ?? ''} />
+          <CampoTelefone className="c-3" rotulo="Telefone celular" name="endereco.telefone_celular" defaultValue={endereco?.telefone_celular ?? ''} />
         </FormSecao>
       ) : null}
     </main>

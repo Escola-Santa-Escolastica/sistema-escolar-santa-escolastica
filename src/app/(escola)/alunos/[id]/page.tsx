@@ -6,7 +6,7 @@ import { criarClienteSupabase } from '@/lib/supabase/server';
 import { carregarFicha } from '@/lib/aluno';
 import { GESTAO, temAlgum } from '@/lib/perfis';
 import {
-  CORES_RACA, formatarCep, formatarCpf, formatarData, formatarTelefone, idadeEmAnos, mascararCpf, STATUS_MATRICULA, TURNOS,
+  CORES_RACA, formatarCep, formatarCpf, formatarData, formatarTelefone, idadeEmAnos, mascaraRg, mascararCpf, STATUS_MATRICULA, TURNOS,
 } from '@/lib/formatos';
 import { BotaoLink, CartaoAluno, Selo, alertasDe } from '@/components/ui';
 
@@ -38,7 +38,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
   const cpf = (v: string | null) => (eGestao ? formatarCpf(v) || '—' : mascararCpf(v));
   const atual = matriculas.find((m) => m.ano_letivo.ativo && m.status !== 'cancelado');
   const idade = idadeEmAnos(p.data_nascimento);
-  const nome = p.nome_social || p.nome;
+  const nome = p.nome;
   const alertas = alertasDe(saude, atendimento?.possui_laudo);
 
   return (
@@ -72,8 +72,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
           <section className="painel" aria-labelledby="t-ident">
             <h2 id="t-ident" className="secao-titulo" style={{ marginBottom: 16 }}>1. Identificação</h2>
             <dl className="dados">
-              <Dado className="span-2" rotulo="Nome completo" valor={p.nome} />
-              <Dado rotulo="Nome social" valor={p.nome_social} />
+              <Dado className="span-todo" rotulo="Nome completo" valor={p.nome} />
               <Dado rotulo="Data de nascimento" valor={`${formatarData(p.data_nascimento)}${idade !== null ? ` · ${idade} anos` : ''}`} />
               <Dado rotulo="Naturalidade" valor={aluno.naturalidade} />
               <Dado rotulo="Nacionalidade" valor={aluno.nacionalidade} />
@@ -84,7 +83,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
               {eGestao ? (
                 <>
                   <Dado rotulo="CIN" valor={p.cin} />
-                  <Dado rotulo="RG" valor={p.rg ? `${p.rg}${p.rg_orgao_expedidor ? ` · ${p.rg_orgao_expedidor}` : ''}` : null} />
+                  <Dado rotulo="RG" valor={p.rg ? `${mascaraRg(p.rg)}${p.rg_orgao_expedidor ? ` · ${p.rg_orgao_expedidor}` : ''}` : null} />
                   <Dado rotulo="Emissão do RG" valor={p.rg_data_emissao ? formatarData(p.rg_data_emissao) : null} />
                   <Dado rotulo="Nº do SUS" valor={aluno.numero_sus} />
                   <Dado rotulo="NIS" valor={aluno.nis} />

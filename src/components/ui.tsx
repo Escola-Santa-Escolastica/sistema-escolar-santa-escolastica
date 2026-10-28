@@ -148,7 +148,7 @@ export function CartaoAluno({ nome, meta, foto, alertas = [], acao }: {
   );
 }
 
-export function Aviso({ tipo, children }: { tipo: 'erro' | 'ok'; children: ReactNode }) {
+export function Aviso({ tipo, children }: { tipo: 'erro' | 'ok' | 'info'; children: ReactNode }) {
   return <div role={tipo === 'erro' ? 'alert' : 'status'} className={cx('aviso', `aviso-${tipo}`)}>{children}</div>;
 }
 

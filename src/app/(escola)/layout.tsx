@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { Cabecalho } from '@/components/cabecalho';
+import { VigiaSessao } from '@/components/vigia-sessao';
 import { sair } from '@/app/entrar/actions';
 import { exigirSessao } from '@/lib/sessao';
 import { eSoFamilia, menuDoUsuario, ROTULO_PAPEL } from '@/lib/perfis';
@@ -20,6 +21,7 @@ export default async function LayoutEscola({ children }: { children: React.React
     <>
       <Cabecalho menu={menu} nome={primeiroNome(sessao.nome)} perfil={perfil} acaoSair={sair} />
       {children}
+      <VigiaSessao />
     </>
   );
 }

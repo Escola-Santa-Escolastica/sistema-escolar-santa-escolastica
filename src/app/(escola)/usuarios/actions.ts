@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { criarClienteAdmin } from '@/lib/supabase/admin';
 import { criarClienteSupabase } from '@/lib/supabase/server';
 import { exigirSessao } from '@/lib/sessao';
+import { mensagemValidacao } from '@/lib/ficha';
 import { PAPEIS_ATRIBUIVEIS, PAPEIS_COM_TURMA, type Papel } from '@/lib/perfis';
 
 export type EstadoUsuario = { erro?: string; ok?: string };
@@ -24,7 +25,7 @@ const esquema = z.object({
 export async function convidarUsuario(_: EstadoUsuario, form: FormData): Promise<EstadoUsuario> {
   await exigirSessao(['admin']);
   const dados = esquema.safeParse(Object.fromEntries(form));
-  if (!dados.success) return { erro: dados.error.issues[0]?.message };
+  if (!dados.success) return { erro: mensagemValidacao(dados) };
   const { nome, email, papel } = dados.data;
   const turmaId = dados.data.turma_id || null;
   const componenteId = dados.data.componente_id || null;

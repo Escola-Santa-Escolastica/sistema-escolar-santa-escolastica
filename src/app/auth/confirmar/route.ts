@@ -1,6 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 import { criarClienteSupabase } from '@/lib/supabase/server';
+import { COOKIE_ATIVIDADE, opcoesCookieAtividade } from '@/lib/limite-sessao';
 
 /**
  * Destino dos links enviados por e-mail (convite, troca de senha).
@@ -34,5 +35,7 @@ export async function GET(request: NextRequest) {
     destino.pathname = '/entrar';
     destino.searchParams.set('erro', 'link');
   }
-  return NextResponse.redirect(destino);
+  const resposta = NextResponse.redirect(destino);
+  if (ok) resposta.cookies.set(COOKIE_ATIVIDADE, String(Date.now()), opcoesCookieAtividade());
+  return resposta;
 }

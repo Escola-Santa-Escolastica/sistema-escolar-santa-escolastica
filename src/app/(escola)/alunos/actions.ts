@@ -8,7 +8,7 @@ import { exigirSessao } from '@/lib/sessao';
 import { mensagemErro } from '@/lib/erros';
 import { esquemaAluno, esquemaAtendimento, esquemaEndereco, esquemaResponsavel, esquemaSaude, primeiroErro, secao } from '@/lib/ficha';
 
-export type EstadoSecao = { erro?: string; ok?: string };
+export type EstadoSecao = { erro?: string; ok?: string; campo?: string };
 
 const uuid = z.string().uuid();
 
@@ -21,14 +21,18 @@ export async function salvarIdentificacao(_: EstadoSecao, form: FormData): Promi
   await exigirSessao(['secretaria']);
   const alunoId = uuid.parse(form.get('aluno_id'));
   const r = esquemaAluno.safeParse(secao(form, 'aluno'));
-  if (!r.success) return { erro: primeiroErro(r) };
+  if (!r.success) return primeiroErro(r, 'aluno')!;
   const d = r.data;
   const supabase = await criarClienteSupabase();
   const { data: aluno } = await supabase.from('alunos').select('pessoa_id').eq('id', alunoId).single();
   if (!aluno) return { erro: 'Aluno não encontrado.' };
+  if (d.cpf) {
+    const { data: outra } = await supabase.from('pessoas').select('nome').eq('cpf', d.cpf).neq('id', aluno.pessoa_id).maybeSingle();
+    if (outra) return { erro: `Este CPF já está cadastrado para ${outra.nome}. Confira o número.`, campo: 'aluno.cpf' };
+  }
 
   const { error: e1 } = await supabase.from('pessoas').update({
-    nome: d.nome, nome_social: d.nome_social, data_nascimento: d.data_nascimento, sexo: d.sexo, cpf: d.cpf, rg: d.rg,
+    nome: d.nome, data_nascimento: d.data_nascimento, sexo: d.sexo, cpf: d.cpf, rg: d.rg,
     rg_orgao_expedidor: d.rg_orgao_expedidor, rg_data_emissao: d.rg_data_emissao, cin: d.cin,
   }).eq('id', aluno.pessoa_id);
   if (e1) return { erro: mensagemErro(e1) };
@@ -47,7 +51,7 @@ export async function salvarEndereco(_: EstadoSecao, form: FormData): Promise<Es
   await exigirSessao(['secretaria']);
   const alunoId = uuid.parse(form.get('aluno_id'));
   const r = esquemaEndereco.safeParse(secao(form, 'endereco'));
-  if (!r.success) return { erro: primeiroErro(r) };
+  if (!r.success) return primeiroErro(r, 'endereco')!;
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.from('enderecos').upsert({ aluno_id: alunoId, ...r.data });
   if (error) return { erro: mensagemErro(error) };
@@ -59,7 +63,7 @@ export async function salvarSaude(_: EstadoSecao, form: FormData): Promise<Estad
   await exigirSessao(['secretaria']);
   const alunoId = uuid.parse(form.get('aluno_id'));
   const r = esquemaSaude.safeParse(secao(form, 'saude'));
-  if (!r.success) return { erro: primeiroErro(r) };
+  if (!r.success) return primeiroErro(r, 'saude')!;
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.from('saude_alunos').upsert({ aluno_id: alunoId, ...r.data });
   if (error) return { erro: mensagemErro(error) };
@@ -71,7 +75,7 @@ export async function salvarAtendimento(_: EstadoSecao, form: FormData): Promise
   await exigirSessao(['secretaria', 'coordenacao']);
   const alunoId = uuid.parse(form.get('aluno_id'));
   const r = esquemaAtendimento.safeParse(secao(form, 'atendimento'));
-  if (!r.success) return { erro: primeiroErro(r) };
+  if (!r.success) return primeiroErro(r, 'atendimento')!;
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.from('atendimentos_especializados').upsert({ aluno_id: alunoId, ...r.data });
   if (error) return { erro: mensagemErro(error) };
@@ -83,7 +87,7 @@ export async function adicionarResponsavel(_: EstadoSecao, form: FormData): Prom
   await exigirSessao(['secretaria']);
   const alunoId = uuid.parse(form.get('aluno_id'));
   const r = esquemaResponsavel.safeParse(secao(form, 'resp'));
-  if (!r.success) return { erro: primeiroErro(r) };
+  if (!r.success) return primeiroErro(r, 'resp')!;
   const d = r.data;
   const supabase = await criarClienteSupabase();
 

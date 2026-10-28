@@ -71,6 +71,50 @@ export function formatarCep(cep: string | null | undefined) {
   return d.length === 8 ? `${d.slice(0, 5)}-${d.slice(5)}` : cep ?? '';
 }
 
+// ---- Máscaras enquanto a pessoa digita (aceitam o número pela metade) ----
+
+/** 000.000.000-00 */
+export function mascaraCpf(v: string) {
+  const d = soDigitos(v).slice(0, 11);
+  return d
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+}
+
+/** (37) 99999-9999 ou (37) 3333-3333 */
+export function mascaraTelefone(v: string) {
+  const d = soDigitos(v).slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  const ddd = `(${d.slice(0, 2)}) `;
+  const resto = d.slice(2);
+  if (resto.length <= 4) return ddd + resto;
+  const corte = d.length === 11 ? 5 : 4;
+  return `${ddd}${resto.slice(0, corte)}-${resto.slice(corte)}`;
+}
+
+/** 35550-000 */
+export function mascaraCep(v: string) {
+  const d = soDigitos(v).slice(0, 8);
+  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+}
+
+/** RG só com números (e o X final de alguns estados): 12.345.678 ou 12.345.678-9. */
+export function normalizarRg(v: string | null | undefined) {
+  const limpo = (v ?? '').toUpperCase().replace(/[^0-9X]/g, '');
+  // o X só vale como último caractere (dígito verificador)
+  return limpo.replace(/X(?=.)/g, '').slice(0, 10);
+}
+
+export function mascaraRg(v: string | null | undefined) {
+  const d = normalizarRg(v);
+  if (d.length <= 2) return d;
+  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}-${d.slice(8)}`;
+}
+
 /** Datas ISO (aaaa-mm-dd) → dd/mm/aaaa, sem passar por fuso horário. */
 export function formatarData(iso: string | null | undefined) {
   if (!iso) return '—';

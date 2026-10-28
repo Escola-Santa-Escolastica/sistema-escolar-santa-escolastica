@@ -11,7 +11,7 @@ import {
   primeiroErro, responsaveis, secao,
 } from '@/lib/ficha';
 
-export type EstadoForm = { erro?: string };
+export type EstadoForm = { erro?: string; campo?: string; duplicado?: { alunoId: string; nome: string } };
 
 /** Nova matrícula: grava a ficha inteira numa transação (função criar_matricula no banco). */
 export async function criarMatricula(_: EstadoForm, form: FormData): Promise<EstadoForm> {
@@ -22,11 +22,13 @@ export async function criarMatricula(_: EstadoForm, form: FormData): Promise<Est
   const endereco = esquemaEndereco.safeParse(secao(form, 'endereco'));
   const saude = esquemaSaude.safeParse(secao(form, 'saude'));
   const atendimento = esquemaAtendimento.safeParse(secao(form, 'atendimento'));
-  const resps = responsaveis(form).map((r) => esquemaResponsavel.safeParse(r));
+  const formResps = responsaveis(form);
+  const resps = formResps.map((r) => esquemaResponsavel.safeParse(r));
 
-  const erro = primeiroErro(aluno) ?? primeiroErro(matricula) ?? resps.map(primeiroErro).find(Boolean)
-    ?? primeiroErro(endereco) ?? primeiroErro(saude) ?? primeiroErro(atendimento);
-  if (erro) return { erro };
+  const erro = primeiroErro(aluno, 'aluno') ?? primeiroErro(matricula, 'matricula')
+    ?? resps.map((r, i) => primeiroErro(r, `resp.${formResps[i].__indice}`)).find(Boolean)
+    ?? primeiroErro(endereco, 'endereco') ?? primeiroErro(saude, 'saude') ?? primeiroErro(atendimento, 'atendimento');
+  if (erro) return erro;
   if (resps.length === 0) return { erro: 'Cadastre pelo menos um responsável.' };
 
   const listaResps = resps.map((r) => r.data!);
@@ -36,6 +38,12 @@ export async function criarMatricula(_: EstadoForm, form: FormData): Promise<Est
   }
 
   const supabase = await criarClienteSupabase();
+
+  // Evita cadastrar de novo uma criança que já está na base.
+  const dadosAluno = aluno.data!;
+  const existente = await procurarAluno(supabase, { cpf: dadosAluno.cpf, nome: dadosAluno.nome, nascimento: dadosAluno.data_nascimento });
+  if (existente) return existente;
+
   const { data: id, error } = await supabase.rpc('criar_matricula', {
     p: {
       aluno: aluno.data,
@@ -46,10 +54,52 @@ export async function criarMatricula(_: EstadoForm, form: FormData): Promise<Est
       matricula: matricula.data,
     },
   });
-  if (error || !id) return { erro: mensagemErro(error) };
+  if (error || !id) {
+    console.error('[matricula] falha ao criar:', error?.code, error?.message);
+    return { erro: mensagemErro(error) };
+  }
 
   revalidatePath('/matriculas');
   redirect(`/matriculas/${id}?ok=criada`);
+}
+
+type Supa = Awaited<ReturnType<typeof criarClienteSupabase>>;
+
+/** pessoas → alunos é um-para-um: o Supabase devolve objeto (ou lista, conforme a versão). */
+function idDoAluno(alunos: unknown): string | undefined {
+  const a = Array.isArray(alunos) ? alunos[0] : alunos;
+  return (a as { id?: string } | null | undefined)?.id;
+}
+
+/** Procura criança já cadastrada pelo CPF ou pelo mesmo nome + data de nascimento. */
+async function procurarAluno(supabase: Supa, { cpf, nome, nascimento }: { cpf: string | null; nome?: string; nascimento?: string }): Promise<EstadoForm | null> {
+  if (cpf) {
+    const { data } = await supabase.from('pessoas').select('nome, alunos(id)').eq('cpf', cpf).maybeSingle();
+    if (data) {
+      const alunoId = idDoAluno(data.alunos);
+      return alunoId
+        ? { erro: `Já existe uma criança cadastrada com este CPF: ${data.nome}. Abra a ficha dela em vez de cadastrar de novo.`, campo: 'aluno.cpf', duplicado: { alunoId, nome: data.nome } }
+        : { erro: `Este CPF já está cadastrado para ${data.nome} (responsável). Confira o número.`, campo: 'aluno.cpf' };
+    }
+  }
+  if (nome && nascimento) {
+    const { data } = await supabase.from('pessoas').select('nome, alunos!inner(id)')
+      .ilike('nome', nome.replace(/[%_\\]/g, '')).eq('data_nascimento', nascimento).limit(1);
+    const achado = data?.[0];
+    const alunoId = idDoAluno(achado?.alunos);
+    if (achado && alunoId) {
+      return { erro: `Já existe uma criança com o mesmo nome e data de nascimento: ${achado.nome}. Abra a ficha dela em vez de cadastrar de novo.`, campo: 'aluno.nome', duplicado: { alunoId, nome: achado.nome } };
+    }
+  }
+  return null;
+}
+
+/** Conferência do CPF enquanto a secretaria preenche a ficha. */
+export async function verificarCpfAluno(cpf: string): Promise<EstadoForm | null> {
+  await exigirSessao(['secretaria']);
+  const d = cpf.replace(/\D/g, '');
+  if (d.length !== 11) return null;
+  return procurarAluno(await criarClienteSupabase(), { cpf: d });
 }
 
 const idSchema = z.string().uuid();
