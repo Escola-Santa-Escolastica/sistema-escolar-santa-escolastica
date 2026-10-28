@@ -45,6 +45,9 @@ export const esquemaAluno = z.object({
 });
 
 export const esquemaResponsavel = z.object({
+  // preenchido quando a secretaria escolhe alguém já cadastrado (irmãos)
+  pessoa_id: z.string().optional().nullable().transform((v) => v || null)
+    .refine((v) => v === null || z.uuid().safeParse(v).success, 'Responsável inválido: busque de novo.'),
   nome: obrigatorio('Informe o nome de cada responsável.').min(3, 'Informe o nome completo de cada responsável.'),
   parentesco: obrigatorio('Informe o parentesco de cada responsável.'),
   filiacao: z.enum(['pai', 'mae']).optional().nullable().or(z.literal('').transform(() => null)),

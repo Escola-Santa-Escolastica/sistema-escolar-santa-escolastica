@@ -157,6 +157,12 @@ select.se-campo-input { padding-right: 32px; }
 /* fieldset da ficha: mantém o respiro do .painel (antes ficava colado na borda) */
 fieldset.bloco { margin: 0; min-inline-size: 0; }
 .bloco-responsavel { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 16px; background: var(--surface); }
+.resp-existente { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 16px; padding: 12px 16px; border-radius: var(--radius-md);
+  background: var(--verde-soft); border-left: 4px solid var(--verde); }
+.resp-sugestoes { display: grid; gap: 8px; padding: 12px 16px; border-radius: var(--radius-md); background: var(--dourado-soft); }
+.resp-sugestoes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.resp-sugestoes li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 12px; border-radius: var(--radius-md); background: var(--surface-raised); }
+.resp-existente .cresce, .resp-sugestoes .cresce { flex: 1 1 220px; min-width: 0; }
 .rodape-form { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 16px 0; display: flex; justify-content: flex-end; gap: 12px; }
 
 /* ---------- Avatar e CartaoAluno ---------- */

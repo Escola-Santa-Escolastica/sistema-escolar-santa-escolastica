@@ -33,6 +33,8 @@ export async function criarMatricula(_: EstadoForm, form: FormData): Promise<Est
 
   const listaResps = resps.map((r) => r.data!);
   if (!listaResps.some((r) => r.responsavel_legal)) return { erro: 'Marque quem é o responsável legal pela criança.' };
+  const chaves = listaResps.map((r) => r.pessoa_id ?? r.cpf).filter(Boolean);
+  if (new Set(chaves).size !== chaves.length) return { erro: 'A mesma pessoa foi incluída duas vezes nos responsáveis.' };
   if (listaResps.filter((r) => r.filiacao === 'mae').length > 1 || listaResps.filter((r) => r.filiacao === 'pai').length > 1) {
     return { erro: 'Só pode haver um pai e uma mãe na filiação.' };
   }

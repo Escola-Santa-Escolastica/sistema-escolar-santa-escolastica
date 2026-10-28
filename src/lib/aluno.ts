@@ -24,6 +24,8 @@ export type FichaAluno = {
     id: string; parentesco: string; filiacao: 'pai' | 'mae' | null; responsavel_legal: boolean; responsavel_financeiro: boolean;
     pode_buscar: boolean; contato_emergencia: boolean; pessoa: Pessoa;
   }[];
+  /** Outras crianças de cada responsável (irmãos), pelo id da pessoa. A RLS limita o que cada perfil vê. */
+  outrasCriancas: Record<string, { id: string; nome: string }[]>;
   matriculas: {
     id: string; numero: string; status: StatusMatricula; turno_pretendido: Turno; data_matricula: string | null;
     ano_letivo: { ano: number; ativo: boolean }; etapa: { nome: string }; turma: { nome: string } | null;
@@ -59,12 +61,27 @@ export async function carregarFicha(supabase: SupabaseClient, alunoId: string): 
       .order('created_at', { ascending: false }),
   ]);
 
+  const listaVinculos = (vinculos.data ?? []) as unknown as FichaAluno['vinculos'];
+  const outrasCriancas: FichaAluno['outrasCriancas'] = {};
+  const idsPessoas = listaVinculos.map((v) => v.pessoa?.id).filter(Boolean);
+  if (idsPessoas.length) {
+    const { data: outros } = await supabase.from('vinculos')
+      .select('pessoa_id, aluno:alunos(id, pessoa:pessoas(nome))')
+      .in('pessoa_id', idsPessoas)
+      .neq('aluno_id', alunoId);
+    for (const o of (outros ?? []) as unknown as { pessoa_id: string; aluno: { id: string; pessoa: { nome: string } | null } | null }[]) {
+      if (!o.aluno?.pessoa) continue;
+      (outrasCriancas[o.pessoa_id] ??= []).push({ id: o.aluno.id, nome: o.aluno.pessoa.nome });
+    }
+  }
+
   return {
     aluno: aluno as unknown as FichaAluno['aluno'],
     endereco: endereco.data,
     saude: saude.data,
     atendimento: atendimento.data,
-    vinculos: (vinculos.data ?? []) as unknown as FichaAluno['vinculos'],
+    vinculos: listaVinculos,
+    outrasCriancas,
     matriculas: (matriculas.data ?? []) as unknown as FichaAluno['matriculas'],
   };
 }

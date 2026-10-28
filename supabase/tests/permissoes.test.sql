@@ -145,6 +145,25 @@ select tst.falha($q$select public.criar_matricula(jsonb_build_object(
   'responsaveis', '[]'::jsonb, 'matricula', jsonb_build_object('etapa_id', (select id from public.etapas limit 1), 'turno_pretendido', 'manha')))$q$,
   'não recadastra criança com mesmo nome e nascimento', 'mesmo nome e data de nascimento');
 select tst.ok(tst.conta('select * from public.alunos') = 3, 'tentativas duplicadas não criaram alunos');
+-- Responsável sem CPF escolhido na busca (avó de Maria Clara) para outra criança
+select id as avo_helena from public.pessoas where nome = 'Helena Souza' \gset
+select public.criar_matricula(jsonb_build_object(
+  'aluno', jsonb_build_object('nome', 'Prima Teste Souza', 'data_nascimento', '2022-10-10'),
+  'responsaveis', jsonb_build_array(
+    jsonb_build_object('pessoa_id', :'avo_helena', 'nome', 'Helena Souza', 'parentesco', 'Avó', 'responsavel_legal', true,
+                       'telefone', '37988887777')),
+  'matricula', jsonb_build_object('etapa_id', :'pre2', 'turno_pretendido', 'tarde')
+)) as mat_prima \gset
+select tst.ok(tst.conta('select * from public.pessoas where nome = ''Helena Souza''') = 1, 'responsável escolhido na busca não é duplicado');
+select tst.ok(tst.conta(format('select * from public.vinculos where pessoa_id = %L', :'avo_helena')) = 2, 'a mesma pessoa fica ligada às duas crianças');
+select tst.ok((select telefone from public.pessoas where id = :'avo_helena') = '37988887777', 'dado em branco do responsável é completado');
+select tst.falha(format($q$select public.criar_matricula(jsonb_build_object(
+  'aluno', jsonb_build_object('nome', 'Outra Prima Teste', 'data_nascimento', '2022-11-11'),
+  'responsaveis', jsonb_build_array(jsonb_build_object('pessoa_id', %L, 'nome', 'x', 'parentesco', 'Mãe', 'responsavel_legal', true)),
+  'matricula', jsonb_build_object('etapa_id', (select id from public.etapas limit 1), 'turno_pretendido', 'manha')))$q$,
+  (select pessoa_id from public.alunos limit 1)),
+  'criança não pode ser escolhida como responsável', 'não foi encontrado');
+select public.mudar_status_matricula(:'mat_prima', 'cancelado', 'teste de responsável compartilhado');
 
 select tst.falha(format('update public.matriculas set status = ''matriculado'' where id = %L', :'mat_maria'),
   'situação não muda por UPDATE direto', 'só muda pelo fluxo');

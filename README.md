@@ -42,6 +42,8 @@ Regras do fluxo de matrícula (no banco, função `mudar_status_matricula`):
 
 Toda alteração em dados de alunos, matrículas e perfis é gravada na tabela `auditoria`.
 
+Pai, mãe ou outro responsável com mais de um filho na escola é **uma pessoa só**, ligada a todas as crianças (tabela `vinculos`). Na matrícula e na edição, ao digitar o nome ou o CPF do responsável, o sistema mostra quem já está cadastrado e a secretaria escolhe "Usar este cadastro" (migration 008). Assim a área da família mostra todos os filhos com um único login.
+
 A mesma criança não é cadastrada duas vezes: a nova matrícula é recusada se o CPF já existir na base (aviso na hora, com link para a ficha) ou se já houver uma criança com o mesmo nome e data de nascimento (função `criar_matricula`, migration 007).
 
 ### Duração da sessão

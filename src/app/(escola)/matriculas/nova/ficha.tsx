@@ -6,6 +6,7 @@ import { criarMatricula, verificarCpfAluno, type EstadoForm } from '../actions';
 import { Aviso, Botao, Campo, CampoSelect, CampoTexto, Check } from '@/components/ui';
 import { CampoCep, CampoCpf, CampoRg, CampoTelefone } from '@/components/campo-mascara';
 import { useFocoNoErro } from '@/components/foco-erro';
+import { DadosResponsavel } from '@/components/dados-responsavel';
 import { CORES_RACA, TURNOS } from '@/lib/formatos';
 
 type Etapa = { id: string; nome: string };
@@ -26,19 +27,15 @@ function Responsavel({ indice, onRemover, padrao }: { indice: number; onRemover?
   return (
     <div className="bloco-responsavel c-6">
       <div className="form-grade">
-        <Campo className="c-4" rotulo="Nome completo" name={`${p}.nome`} obrigatorio autoComplete="off" />
-        <Campo className="c-2" rotulo="Parentesco" name={`${p}.parentesco`} obrigatorio
-          defaultValue={padrao === 'mae' ? 'Mãe' : padrao === 'pai' ? 'Pai' : ''} placeholder="Mãe, Pai, Avó…" />
-        <CampoSelect className="c-2" rotulo="Aparece na filiação como" name={`${p}.filiacao`} defaultValue={padrao === 'outro' ? '' : padrao}>
-          <option value="">Não aparece</option>
-          <option value="mae">Mãe</option>
-          <option value="pai">Pai</option>
-        </CampoSelect>
-        <CampoCpf className="c-2" rotulo="CPF" name={`${p}.cpf`} />
-        <CampoRg className="c-2" rotulo="RG" name={`${p}.rg`} />
-        <CampoTelefone className="c-2" rotulo="Telefone" name={`${p}.telefone`} />
-        <Campo className="c-2" rotulo="E-mail" name={`${p}.email`} type="email" />
-        <Campo className="c-2" rotulo="Profissão" name={`${p}.profissao`} />
+        <DadosResponsavel prefixo={p}>
+          <Campo className="c-2" rotulo="Parentesco" name={`${p}.parentesco`} obrigatorio
+            defaultValue={padrao === 'mae' ? 'Mãe' : padrao === 'pai' ? 'Pai' : ''} placeholder="Mãe, Pai, Avó…" />
+          <CampoSelect className="c-2" rotulo="Aparece na filiação como" name={`${p}.filiacao`} defaultValue={padrao === 'outro' ? '' : padrao}>
+            <option value="">Não aparece</option>
+            <option value="mae">Mãe</option>
+            <option value="pai">Pai</option>
+          </CampoSelect>
+        </DadosResponsavel>
         <div className="c-6" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px' }}>
           <Check rotulo="Responsável legal" name={`${p}.responsavel_legal`} defaultChecked={padrao !== 'outro'} />
           <Check rotulo="Responsável financeiro" name={`${p}.responsavel_financeiro`} defaultChecked={indice === 0} />
@@ -134,8 +131,8 @@ export function FichaMatricula({ etapas, ano }: { etapas: Etapa[]; ano: number }
 
       <Secao numero={2} titulo="Filiação e responsáveis">
         <p className="legenda c-6" style={{ margin: 0 }}>
-          Cadastre pai, mãe, responsável legal e quem mais pode buscar a criança. Pessoas já cadastradas (irmãos na escola)
-          são reconhecidas pelo CPF.
+          Cadastre pai, mãe, responsável legal e quem mais pode buscar a criança. Se a pessoa já é responsável por outra
+          criança da escola, digite o nome ou o CPF e escolha &quot;Usar este cadastro&quot;: ela fica ligada a todos os filhos.
         </p>
         {resps.map((r, i) => (
           <Responsavel key={r.id} indice={r.id} padrao={r.padrao}

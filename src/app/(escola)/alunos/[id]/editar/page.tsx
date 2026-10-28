@@ -8,6 +8,7 @@ import { CORES_RACA, formatarTelefone } from '@/lib/formatos';
 import { Botao, Campo, CampoSelect, CampoTexto, Check, Selo } from '@/components/ui';
 import { FormSecao } from '@/components/form-secao';
 import { CampoCep, CampoCpf, CampoRg, CampoTelefone } from '@/components/campo-mascara';
+import { DadosResponsavel } from '@/components/dados-responsavel';
 import {
   adicionarResponsavel, convidarFamilia, removerVinculo, salvarAtendimento, salvarEndereco, salvarIdentificacao, salvarSaude,
 } from '../../actions';
@@ -21,7 +22,7 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
   const supabase = await criarClienteSupabase();
   const ficha = await carregarFicha(supabase, id);
   if (!ficha) notFound();
-  const { aluno, endereco, saude, atendimento, vinculos } = ficha;
+  const { aluno, endereco, saude, atendimento, vinculos, outrasCriancas } = ficha;
   const p = aluno.pessoa;
   const eSecretaria = sessao.papeis.includes('secretaria');
   const temConviteConfigurado = Boolean(process.env.SUPABASE_SECRET_KEY);
@@ -80,6 +81,9 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
                   <div className="legenda">
                     {[v.parentesco, v.pessoa?.telefone ? formatarTelefone(v.pessoa.telefone) : null, v.pessoa?.email].filter(Boolean).join(' · ')}
                   </div>
+                  {outrasCriancas[v.pessoa?.id]?.length ? (
+                    <div className="legenda">Também responsável por {outrasCriancas[v.pessoa.id].map((c) => c.nome).join(', ')}</div>
+                  ) : null}
                 </div>
                 {v.pessoa?.user_id ? <Selo tom="verde">Tem acesso</Selo> : v.pessoa?.email && (v.responsavel_legal || v.filiacao) && temConviteConfigurado ? (
                   <form action={convidarFamilia}>
@@ -104,16 +108,13 @@ export default async function EditarFicha({ params }: { params: Promise<{ id: st
       ) : null}
 
       {eSecretaria ? (
-        <FormSecao key={vinculos.length} titulo="Adicionar responsável ou pessoa autorizada" acao={adicionarResponsavel} alunoId={id} rotuloBotao="Adicionar pessoa">
-          <Campo className="c-4" rotulo="Nome completo" name="resp.nome" obrigatorio />
-          <Campo className="c-2" rotulo="Parentesco" name="resp.parentesco" placeholder="Avó, Tio…" obrigatorio />
-          <CampoSelect className="c-2" rotulo="Aparece na filiação como" name="resp.filiacao" defaultValue="">
-            <option value="">Não aparece</option><option value="mae">Mãe</option><option value="pai">Pai</option>
-          </CampoSelect>
-          <CampoCpf className="c-2" rotulo="CPF" name="resp.cpf" />
-          <CampoTelefone className="c-2" rotulo="Telefone" name="resp.telefone" />
-          <Campo className="c-3" rotulo="E-mail" name="resp.email" type="email" />
-          <Campo className="c-3" rotulo="Profissão" name="resp.profissao" />
+        <FormSecao titulo="Adicionar responsável ou pessoa autorizada" acao={adicionarResponsavel} alunoId={id} rotuloBotao="Adicionar pessoa" limparAoSalvar>
+          <DadosResponsavel prefixo="resp" comRg={false}>
+            <Campo className="c-2" rotulo="Parentesco" name="resp.parentesco" placeholder="Avó, Tio…" obrigatorio />
+            <CampoSelect className="c-2" rotulo="Aparece na filiação como" name="resp.filiacao" defaultValue="">
+              <option value="">Não aparece</option><option value="mae">Mãe</option><option value="pai">Pai</option>
+            </CampoSelect>
+          </DadosResponsavel>
           <div className="c-6" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 24px' }}>
             <Check rotulo="Responsável legal" name="resp.responsavel_legal" />
             <Check rotulo="Responsável financeiro" name="resp.responsavel_financeiro" />

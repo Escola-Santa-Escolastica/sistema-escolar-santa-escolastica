@@ -31,7 +31,7 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
   const ficha = await carregarFicha(supabase, id);
   if (!ficha) notFound();
 
-  const { aluno, endereco, saude, atendimento, vinculos, matriculas } = ficha;
+  const { aluno, endereco, saude, atendimento, vinculos, matriculas, outrasCriancas } = ficha;
   const p = aluno.pessoa;
   const eGestao = temAlgum(sessao.papeis, GESTAO);
   const podeEditar = sessao.papeis.includes('secretaria') || sessao.papeis.includes('coordenacao');
@@ -104,6 +104,14 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
                         {[v.parentesco, v.responsavel_legal ? 'responsável legal' : null, v.responsavel_financeiro ? 'financeiro' : null,
                           v.contato_emergencia ? 'contato de emergência' : null].filter(Boolean).join(' · ')}
                       </div>
+                      {outrasCriancas[v.pessoa?.id]?.length ? (
+                        <div className="legenda">
+                          Também responsável por{' '}
+                          {outrasCriancas[v.pessoa.id].map((c, i) => (
+                            <span key={c.id}>{i > 0 ? ', ' : ''}<Link href={`/alunos/${c.id}`}>{c.nome}</Link></span>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                     {v.pessoa?.telefone ? <a href={`tel:${v.pessoa.telefone}`}>{formatarTelefone(v.pessoa.telefone)}</a> : null}
                     {v.pode_buscar ? <Selo tom="verde">Pode buscar</Selo> : <Selo>Não busca</Selo>}

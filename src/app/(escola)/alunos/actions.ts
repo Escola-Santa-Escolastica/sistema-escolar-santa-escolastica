@@ -91,8 +91,8 @@ export async function adicionarResponsavel(_: EstadoSecao, form: FormData): Prom
   const d = r.data;
   const supabase = await criarClienteSupabase();
 
-  let pessoaId: string | undefined;
-  if (d.cpf) {
+  let pessoaId: string | undefined = d.pessoa_id ?? undefined;
+  if (!pessoaId && d.cpf) {
     const { data } = await supabase.from('pessoas').select('id').eq('cpf', d.cpf).maybeSingle();
     pessoaId = data?.id;
   }
@@ -114,6 +114,34 @@ export async function adicionarResponsavel(_: EstadoSecao, form: FormData): Prom
   }
   atualizar(alunoId);
   return { ok: `${d.nome} adicionado(a).` };
+}
+
+export type ResponsavelEncontrado = {
+  id: string; nome: string; cpf: string | null; telefone: string | null; email: string | null; profissao: string | null;
+  criancas: string[];
+};
+
+/**
+ * Busca responsável já cadastrado (pai/mãe de outra criança) pelo CPF ou
+ * pelo nome, para ligar a mesma pessoa a mais de um filho.
+ */
+export async function buscarResponsaveis(termo: string): Promise<ResponsavelEncontrado[]> {
+  await exigirSessao(['secretaria']);
+  const t = termo.trim();
+  const digitos = t.replace(/\D/g, '');
+  const porCpf = digitos.length === 11;
+  if (!porCpf && t.replace(/\s/g, '').length < 3) return [];
+  const supabase = await criarClienteSupabase();
+  let q = supabase.from('pessoas')
+    .select('id, nome, cpf, telefone, email, profissao, vinculos!inner(aluno:alunos(pessoa:pessoas(nome)))')
+    .order('nome').limit(5);
+  q = porCpf ? q.eq('cpf', digitos) : q.ilike('nome', `%${t.replace(/[%_\\,()]/g, '')}%`);
+  const { data } = await q;
+  type Linha = Omit<ResponsavelEncontrado, 'criancas'> & { vinculos: { aluno: { pessoa: { nome: string } | null } | null }[] };
+  return ((data ?? []) as unknown as Linha[]).map(({ vinculos, ...p }) => ({
+    ...p,
+    criancas: [...new Set(vinculos.map((v) => v.aluno?.pessoa?.nome).filter((n): n is string => Boolean(n)))],
+  }));
 }
 
 export async function removerVinculo(form: FormData) {
