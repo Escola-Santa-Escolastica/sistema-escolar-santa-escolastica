@@ -162,7 +162,7 @@ async function entrarComo(email, senhaLogin = senha) {
 }
 
 // ---------- 1. Ano letivo e turmas ----------
-console.log('\n1/5 Turmas do ano letivo ativo');
+console.log('\n1/6 Turmas do ano letivo ativo');
 const ano = ok(await admin.from('anos_letivos').select('id, ano').eq('ativo', true).maybeSingle(), 'Não achei o ano letivo (as migrations foram aplicadas?)');
 if (!ano) falhar('Nenhum ano letivo ativo. Aplique as migrations do sistema antes (npx supabase db push).');
 const etapas = ok(await admin.from('etapas').select('id, nome'), 'Erro ao ler etapas');
@@ -177,7 +177,7 @@ const idTurma = (nome) => turmas.find((t) => t.nome === nome)?.id;
 console.log(`   ${turmas.length} turmas em ${ano.ano}`);
 
 // ---------- 2. Logins ----------
-console.log('2/5 Logins de teste');
+console.log('2/6 Logins de teste');
 const usuarios = ok(await admin.auth.admin.listUsers({ perPage: 1000 }), 'Não consegui listar usuários (confira a chave secreta)').users;
 async function garantirLogin({ email, nome, papeis, turma }, senhaLogin) {
   let u = usuarios.find((x) => x.email?.toLowerCase() === email.toLowerCase());
@@ -208,7 +208,7 @@ if (adminEmail) {
 console.log(`   ${LOGINS.length} logins de teste${adminEmail ? ' + o seu de administrador' : ''}`);
 
 // ---------- 3. Matrículas pelo fluxo real ----------
-console.log('3/5 Crianças fictícias e matrículas (pelo fluxo do sistema)');
+console.log('3/6 Crianças fictícias e matrículas (pelo fluxo do sistema)');
 const secretaria = await entrarComo(LOGINS.find((l) => l.chave === 'secretaria').email);
 const direcao = await entrarComo(LOGINS.find((l) => l.chave === 'direcao').email);
 const ja = ok(await admin.from('vw_matriculas').select('aluno_nome').eq('ano_letivo_id', ano.id), 'Erro ao ler matrículas').map((m) => m.aluno_nome);
@@ -245,7 +245,7 @@ for (const c of CRIANCAS) {
 console.log(`   ${criadas} matrícula(s) criada(s)${criadas === 0 ? ' (já existiam)' : ''}`);
 
 // ---------- 4. Liga a mãe de teste às crianças dela ----------
-console.log('4/5 Acesso da família de teste');
+console.log('4/6 Acesso da família de teste');
 const pessoaMae = ok(await admin.from('pessoas').select('id').eq('user_id', ids.mae).single(), 'Erro ao achar a mãe de teste');
 const vinculosJuliana = ok(await admin.from('pessoas').select('id').eq('email', `mae@${DOMINIO}`).is('user_id', null), 'Erro ao achar os vínculos da mãe');
 // a ficha criou a "Juliana" como responsável; a pessoa com login herda os dados e os vínculos dela
@@ -257,7 +257,7 @@ const filhos = ok(await admin.from('vinculos').select('id').eq('pessoa_id', pess
 console.log(`   mãe de teste ligada a ${filhos.length} criança(s)`);
 
 // ---------- 5. Frequência de exemplo ----------
-console.log('5/5 Frequência de exemplo (últimos 10 dias úteis)');
+console.log('5/6 Frequência de exemplo (últimos 10 dias úteis)');
 const hojeSP = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 const anoDatas = ok(await admin.from('anos_letivos').select('inicio, fim').eq('id', ano.id).single(), 'Erro ao ler o ano letivo');
 if (anoDatas.inicio && hojeSP < anoDatas.inicio) {
@@ -303,6 +303,33 @@ if (anoDatas.inicio && hojeSP < anoDatas.inicio) {
   }
   console.log(`   ${novas} chamada(s) de exemplo criada(s)${novas === 0 ? ' (já existiam)' : ''}`);
 }
+
+// ---------- 6. Notícias de exemplo no site ----------
+console.log('6/6 Notícias de exemplo no site');
+const turmaPre2 = idTurma('Pré II · Manhã');
+const proximoSabado = (() => {
+  const d = new Date(`${hojeSP}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + ((6 - d.getUTCDay() + 7) % 7 || 7) + 14);
+  return d.toISOString().slice(0, 10);
+})();
+const exemplos = [
+  { slug: 'exemplo-festa-da-familia', tipo: 'evento', titulo: 'Festa da Família (exemplo)', evento_data: proximoSabado, evento_inicio: '09:00', evento_fim: '11:30',
+    resumo: 'Uma manhã de brincadeiras, apresentações das turmas e lanche partilhado. Publicação de teste.',
+    texto: 'Este é um texto de exemplo do ambiente de teste.\n\nAs famílias são convidadas para uma manhã de convivência na escola.' },
+  { slug: 'exemplo-projeto-horta', tipo: 'noticia', titulo: 'Projeto horta: as crianças plantaram (exemplo)',
+    resumo: 'O Pré I começou a cuidar de uma pequena horta no pátio. Publicação de teste.',
+    texto: 'Texto de exemplo do ambiente de teste.\n\nCada criança ficou responsável por regar uma muda durante a semana.' },
+  { slug: 'exemplo-aviso-dia-do-brinquedo', tipo: 'comunicado', titulo: 'Dia do brinquedo no Pré II (exemplo)', visibilidade: 'turma', turma_id: turmaPre2,
+    resumo: 'Na sexta, cada criança pode trazer um brinquedo de casa. Aviso de teste só para as famílias do Pré II · Manhã.', texto: '' },
+];
+let novasPub = 0;
+for (const e of exemplos) {
+  const ja = ok(await admin.from('publicacoes').select('id').eq('slug', e.slug).maybeSingle(), 'Erro ao ler publicações');
+  if (ja) continue;
+  ok(await admin.from('publicacoes').insert({ visibilidade: 'publico', ...e, status: 'publicada', autor: ids.direcao ?? null }), `Erro ao criar a publicação ${e.titulo}`);
+  novasPub++;
+}
+console.log(`   ${novasPub} publicação(ões) de exemplo criada(s)${novasPub === 0 ? ' (já existiam)' : ''}`);
 
 // ---------- resumo ----------
 console.log('\n=====================================================');

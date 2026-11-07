@@ -14,5 +14,5 @@ export async function definirSenha(_: EstadoSenha, form: FormData): Promise<Esta
   const supabase = await criarClienteSupabase();
   const { error } = await supabase.auth.updateUser({ password: senha });
   if (error) return { erro: 'Não foi possível salvar a senha. Peça um novo link à secretaria.' };
-  redirect('/');
+  redirect('/painel');
 }

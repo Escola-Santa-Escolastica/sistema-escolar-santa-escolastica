@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const tokenHash = url.searchParams.get('token_hash');
   const tipo = url.searchParams.get('type') as EmailOtpType | null;
   const codigo = url.searchParams.get('code');
-  const proximoParam = url.searchParams.get('proximo') ?? '/';
+  const proximoParam = url.searchParams.get('proximo') ?? '/painel';
   const proximo = proximoParam.startsWith('/') && !proximoParam.startsWith('//') ? proximoParam : '/';
 
   const supabase = await criarClienteSupabase();

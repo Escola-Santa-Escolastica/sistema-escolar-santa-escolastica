@@ -19,7 +19,7 @@ export default function SemAcesso() {
             secretaria ou com a direção da escola.
           </p>
           <div className="acoes">
-            <BotaoLink href="/">Voltar ao início</BotaoLink>
+            <BotaoLink href="/painel">Voltar ao início</BotaoLink>
             <form action={sair}><Botao type="submit" variante="texto">Sair</Botao></form>
           </div>
         </div>

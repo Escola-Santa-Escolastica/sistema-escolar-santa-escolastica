@@ -413,4 +413,47 @@ update public.anos_letivos set inicio = null, fim = null where ativo;
 reset app.hoje_simulado;
 reset app.agora_simulada;
 
+-- =====================================================================
+\echo '--- Site e notícias'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', false);
+select tst.ok(tst.linhas('insert into public.publicacoes (tipo, titulo, slug, resumo) values (''noticia'', ''Rascunho da secretaria'', ''rascunho-secretaria'', ''Resumo do rascunho'')') = 1,
+  'secretaria salva rascunho');
+select tst.falha('insert into public.publicacoes (tipo, titulo, slug, resumo, status) values (''noticia'', ''Publicada pela secretaria'', ''pub-secretaria'', ''Resumo'', ''publicada'')',
+  'secretaria não publica', 'row-level security');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a3', false);
+insert into public.publicacoes (tipo, titulo, slug, resumo, status) values ('noticia', 'Notícia pública', 'noticia-publica', 'Para todos', 'publicada');
+insert into public.publicacoes (tipo, titulo, slug, resumo, status, visibilidade) values ('comunicado', 'Aviso às famílias', 'aviso-familias', 'Só famílias', 'publicada', 'familias');
+insert into public.publicacoes (tipo, titulo, slug, resumo, status, visibilidade, turma_id) values ('comunicado', 'Aviso do Pré II', 'aviso-pre2', 'Só a turma', 'publicada', 'turma', :'turma_pre2');
+insert into public.publicacoes (tipo, titulo, slug, resumo, status, publicar_em) values ('noticia', 'Agendada', 'agendada', 'Amanhã', 'publicada', now() + interval '1 day');
+select tst.falha('insert into public.publicacoes (tipo, titulo, slug, resumo, status) values (''evento'', ''Evento sem data'', ''evento-sem-data'', ''x x x'', ''publicada'')',
+  'evento precisa de data', 'check');
+select tst.ok((select publicar_em is not null from public.publicacoes where slug = 'noticia-publica'), 'publicar sem data vale agora');
+select tst.ok(tst.conta('select * from public.publicacoes') = 5, 'coordenação vê tudo, inclusive rascunho e agendada');
+reset role;
+
+set role anon;
+select tst.ok(tst.conta('select * from public.publicacoes') = 1, 'visitante sem login vê só a notícia pública já publicada');
+select tst.falha('select * from public.pedidos_visita', 'visitante não lê pedidos de visita', 'permission denied');
+select public.registrar_interesse('Maria Visitante', '(37) 99999-0000', '4 anos', true);
+select tst.falha('select public.registrar_interesse(''Maria Visitante'', ''37999990000'', null, false)', 'pede consentimento', 'autorização');
+select tst.falha('select public.registrar_interesse(''Ana'', ''123'', null, true)', 'pede telefone com DDD', 'DDD');
+select tst.falha('insert into public.publicacoes (tipo, titulo, slug, resumo) values (''noticia'', ''Invasor'', ''invasor'', ''x x x'')',
+  'visitante não publica');
+reset role;
+
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a8', false);
+select tst.ok(tst.conta('select * from public.publicacoes') = 3, 'mãe vê a pública, a das famílias e a da turma do filho');
+select tst.ok(tst.linhas('update public.publicacoes set titulo = ''Mudado''') = 0, 'família não altera publicações');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a9', false);
+select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'pai de aluno sem turma não vê o aviso do Pré II');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a6', false);
+select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'professor do Pré I não vê o aviso do Pré II');
+select tst.ok(tst.conta('select * from public.pedidos_visita') = 0, 'professor não lê pedidos de visita');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', false);
+select tst.ok(tst.conta('select * from public.pedidos_visita') = 1, 'secretaria lê o pedido de visita');
+select tst.ok(tst.linhas('delete from public.publicacoes') = 0, 'secretaria não apaga publicações');
+reset role;
+
 \echo '=== TODOS OS TESTES PASSARAM ==='

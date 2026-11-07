@@ -6,6 +6,7 @@ import { criarClienteSupabase } from '@/lib/supabase/server';
 import { primeiroNome, STATUS_MATRICULA, TURNOS, type StatusMatricula, type Turno } from '@/lib/formatos';
 import { BotaoLink, CartaoAluno, Selo, alertasDe } from '@/components/ui';
 import { MINIMO_LEGAL_PCT, type ResumoAluno } from '@/lib/frequencia';
+import { TIPO_PUBLICACAO, dataLocal, dataPorExtenso, hora, type Publicacao } from '@/lib/site';
 
 export const metadata: Metadata = { title: 'Área da família' };
 
@@ -31,13 +32,20 @@ export default async function Familia() {
 
   const ids = filhos.map((f) => f.aluno_id);
   const matIds = filhos.map((f) => f.id);
-  const [{ data: alertas }, { data: pendentes }, { data: resumos }] = await Promise.all([
+  const [{ data: alertas }, { data: pendentes }, { data: resumos }, { data: avisosRows }] = await Promise.all([
     ids.length ? supabase.from('vw_alertas_aluno').select('*').in('aluno_id', ids) : Promise.resolve({ data: [] as never[] }),
     matIds.length
       ? supabase.from('documentos_entregues').select('matricula_id, status, tipo:tipos_documento(nome, obrigatorio)').in('matricula_id', matIds).eq('status', 'pendente')
       : Promise.resolve({ data: [] as never[] }),
     ids.length ? supabase.from('vw_frequencia_aluno').select('*').in('aluno_id', ids) : Promise.resolve({ data: [] as never[] }),
+    // Avisos só para famílias (ou para a turma do filho). A RLS filtra as turmas.
+    supabase.from('publicacoes')
+      .select('id, tipo, titulo, resumo, texto, evento_data, evento_inicio, evento_fim, evento_local, publicar_em, created_at, turmas(nome)')
+      .eq('status', 'publicada').in('visibilidade', ['familias', 'turma']).lte('publicar_em', new Date().toISOString())
+      .order('publicar_em', { ascending: false }).limit(6),
   ]);
+  type Aviso = Pick<Publicacao, 'id' | 'tipo' | 'titulo' | 'resumo' | 'texto' | 'evento_data' | 'evento_inicio' | 'evento_fim' | 'evento_local' | 'publicar_em' | 'created_at'> & { turmas: { nome: string } | null };
+  const avisos = (avisosRows ?? []) as unknown as Aviso[];
   const resumoDe = new Map(((resumos ?? []) as ResumoAluno[]).map((r) => [r.aluno_id, r]));
   const alertaDe = new Map((alertas ?? []).map((a: { aluno_id: string }) => [a.aluno_id, a]));
   type Pend = { matricula_id: string; tipo: { nome: string; obrigatorio: boolean } };
@@ -48,6 +56,30 @@ export default async function Familia() {
       <CabecalhoFamilia />
       <main className="pagina pagina-estreita">
         <h1 className="titulo">Olá, {primeiroNome(sessao.nome)}</h1>
+        {avisos.length ? (
+          <section className="painel avisos-familia" aria-labelledby="t-avisos">
+            <h2 id="t-avisos" className="secao-titulo" style={{ fontSize: 20 }}>Avisos da escola</h2>
+            {avisos.map((a) => {
+              const t = TIPO_PUBLICACAO[a.tipo];
+              const horario = [hora(a.evento_inicio), hora(a.evento_fim)].filter(Boolean).join(' às ');
+              return (
+                <article key={a.id} className="aviso-familia-item">
+                  <span className="site-cartao-meta">
+                    <Selo tom={t.tom}>{t.rotulo}</Selo>
+                    {a.turmas ? <Selo tom="neutro">Turma {a.turmas.nome}</Selo> : null}
+                    {dataPorExtenso(dataLocal(a.publicar_em ?? a.created_at))}
+                  </span>
+                  <strong>{a.titulo}</strong>
+                  {a.tipo === 'evento' && a.evento_data ? (
+                    <span className="legenda">{dataPorExtenso(a.evento_data, true)}{horario ? ` · ${horario}` : ''}{a.evento_local ? ` · ${a.evento_local}` : ''}</span>
+                  ) : null}
+                  <p>{a.resumo}</p>
+                  {a.texto ? <details><summary>Ler o aviso completo</summary><p style={{ marginTop: 8 }}>{a.texto}</p></details> : null}
+                </article>
+              );
+            })}
+          </section>
+        ) : null}
         {filhos.length === 0 ? (
           <p className="vazio">Ainda não há crianças vinculadas à sua conta. Fale com a secretaria da escola.</p>
         ) : filhos.map((f) => {

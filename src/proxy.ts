@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { avaliarSessao, COOKIE_ATIVIDADE, opcoesCookieAtividade } from '@/lib/limite-sessao';
 
-const ROTAS_PUBLICAS = ['/entrar', '/definir-senha', '/auth/confirmar'];
+const ROTAS_PUBLICAS = ['/', '/noticias', '/entrar', '/definir-senha', '/auth/confirmar'];
 /** Consulta do tempo restante: não conta como uso do sistema. */
 const CONSULTA_SESSAO = '/api/sessao';
 
@@ -61,12 +61,14 @@ export async function proxy(request: NextRequest) {
 
   // Link de convite/troca de senha segue mesmo se havia uma sessão vencida.
   const linkDeEmail = caminho.startsWith('/auth/confirmar');
-  if (!logado && (!publica || (motivo && !linkDeEmail))) {
+  // O site público continua aberto mesmo quando a sessão venceu.
+  const paginaDoSite = caminho === '/' || caminho === '/noticias' || caminho.startsWith('/noticias/');
+  if (!logado && (!publica || (motivo && !linkDeEmail && !paginaDoSite))) {
     const url = request.nextUrl.clone();
     url.pathname = '/entrar';
     const params = new URLSearchParams();
     if (motivo) params.set('expirou', motivo);
-    if (caminho !== '/' && !publica && request.method === 'GET') params.set('voltar', caminho);
+    if (!publica && request.method === 'GET') params.set('voltar', caminho);
     url.search = params.toString() ? `?${params}` : '';
     const redir = NextResponse.redirect(url);
     // leva junto a limpeza dos cookies de sessão

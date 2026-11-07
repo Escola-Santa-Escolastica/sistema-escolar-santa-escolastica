@@ -14,7 +14,7 @@ export function Cabecalho({ menu, nome, perfil, acaoSair }: {
   return (
     <header className="cabecalho">
       <div className="cabecalho-inner">
-        <Link href="/" className="marca">
+        <Link href="/painel" className="marca">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/marca/emblema.png" alt="" width={44} height={46} className="marca-emblema" />
           <span className="marca-texto">

@@ -54,6 +54,7 @@ export const MENU: ItemMenu[] = [
   { href: '/frequencia', rotulo: 'Frequência', papeis: ['direcao', 'coordenacao', 'secretaria'] },
   { href: '/turmas', rotulo: 'Turmas', papeis: ['direcao', 'coordenacao', 'secretaria'] },
   { href: '/calendario', rotulo: 'Calendário', papeis: ['direcao', 'coordenacao', 'secretaria'] },
+  { href: '/site', rotulo: 'Site e notícias', papeis: ['direcao', 'coordenacao', 'secretaria'] },
   { href: '/usuarios', rotulo: 'Usuários', papeis: ['admin', 'direcao'] },
 ];
 

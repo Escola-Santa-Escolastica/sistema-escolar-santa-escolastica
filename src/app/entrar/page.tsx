@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { FormularioEntrar } from './formulario';
 import { DURACAO_MAXIMA_H, INATIVIDADE_MIN } from '@/lib/limite-sessao';
 
@@ -22,6 +23,7 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
         </div>
         <FormularioEntrar voltar={voltar} aviso={aviso} />
       </div>
+      <Link href="/" className="entrar-voltar-site">‹ Voltar ao site da escola</Link>
     </main>
   );
 }

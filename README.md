@@ -2,7 +2,7 @@
 
 Sistema de gestão escolar do Instituto Santa Escolástica (Itapecerica/MG), Educação Infantil a partir de 4 anos.
 
-**Entregas:** 1) base do sistema (login, 10 perfis de acesso, permissões no banco) + cadastro do aluno e fluxo de matrícula; 2) frequência diária e calendário letivo.
+**Entregas:** 1) base do sistema (login, 10 perfis de acesso, permissões no banco) + cadastro do aluno e fluxo de matrícula; 2) frequência diária e calendário letivo; 3) site da escola (sem login) com notícias, eventos e pedidos de visita.
 
 | Módulo | O que já faz |
 | --- | --- |
@@ -13,7 +13,8 @@ Sistema de gestão escolar do Instituto Santa Escolástica (Itapecerica/MG), Edu
 | Turmas | Anos letivos (um ativo por vez), turmas por etapa e turno, capacidade |
 | Frequência | Chamada da professora (celular e tablet), painel do dia da gestão, diário do mês por turma (imprimível), aba Frequência na ficha, justificativas e alertas |
 | Calendário | Período das aulas, feriados, recesso e dias sem aula; conta os 200 dias e as 800 horas exigidos |
-| Família | Pai, mãe ou responsável legal vê os próprios filhos, a situação da matrícula, os documentos pendentes e a frequência; avisa e justifica faltas |
+| Família | Pai, mãe ou responsável legal vê os próprios filhos, a situação da matrícula, os documentos pendentes e a frequência; avisa e justifica faltas; recebe os avisos da escola e da turma |
+| Site | Página inicial pública (`/`), notícias e eventos (`/noticias`), agenda com arquivo para o calendário do celular, formulário “Agende uma visita”; a equipe escreve e publica em **Site e notícias** |
 
 ## Tecnologia
 
@@ -67,6 +68,14 @@ Regras no banco (`supabase/migrations/*_frequencia.sql`):
 - **Avisos e justificativas**: o aviso da família antes da chamada vale na hora (a criança já aparece com falta e o recado). A justificativa depois da falta fica em análise até a gestão aceitar. Justificativa da secretaria entra aceita. Falta justificada continua contando como ausência nos 60% (LDB, art. 31).
 - **Alertas**: frequência no ano abaixo de 75% (com 10 dias ou mais) e 3 faltas seguidas sem aviso. Os dois números ficam na tabela `escola` (`frequencia_alerta_pct`, `faltas_seguidas_alerta`), assim como o horário limite (`chamada_editavel_ate`).
 
+### Site e notícias
+
+- **Endereços**: `/` é o site da escola, aberto a qualquer pessoa; o sistema fica em `/entrar` (botão **Entrar** no topo do site) e, depois do login, em `/painel`.
+- **Quem publica**: a secretaria escreve rascunhos; a coordenação e a direção publicam, agendam, tiram do ar e apagam. Uma publicação já no ar só a coordenação e a direção alteram (regra no banco, `*_site_publicacoes.sql`).
+- **Quem vê**: *Todos* aparece no site; *Só as famílias da escola* e *Só as famílias de uma turma* não aparecem no site, só na área da família (e para a equipe).
+- **Pedidos de visita**: o formulário do site grava nome, telefone e idade da criança, com a autorização da família. Só a gestão lê. No máximo 3 pedidos por telefone por dia.
+- **Textos fixos do site** (endereço, telefone, apresentação, período de matrícula): `src/lib/site.ts`.
+
 ## Testar no seu computador (Windows)
 
 Precisa ter instalado: [Docker Desktop](https://www.docker.com/products/docker-desktop) (aberto), [Node.js LTS](https://nodejs.org) e [Git](https://git-scm.com).
@@ -109,7 +118,7 @@ Um site com **dados fictícios** e um login por perfil, para a equipe testar pel
    | `NEXT_PUBLIC_AMBIENTE` | `teste` |
 
 4. **Supabase › Authentication › URL Configuration:** *Site URL* = o endereço da Vercel; em *Redirect URLs* adicione `https://SEU-ENDERECO/auth/confirmar`.
-5. **Dados de teste:** na pasta do projeto, rode `npm run popular-teste` e informe o Project URL, as duas chaves e uma senha. O script cria 6 logins de teste (direção, coordenação, secretaria, professora, auxiliar e mãe), 9 crianças fictícias com matrículas em situações diferentes e, se quiser, o seu login de administrador. Pode rodar de novo sem duplicar nada.
+5. **Dados de teste:** na pasta do projeto, rode `npm run popular-teste` e informe o Project URL, as duas chaves e uma senha. O script cria 6 logins de teste (direção, coordenação, secretaria, professora, auxiliar e mãe), 9 crianças fictícias com matrículas em situações diferentes, notícias de exemplo no site e, se quiser, o seu login de administrador. Pode rodar de novo sem duplicar nada.
 
 O plano gratuito do Supabase pausa o projeto depois de 7 dias sem uso; basta reativar no painel.
 
@@ -175,8 +184,10 @@ src/lib/               sessão, perfis, validação da ficha, formatação
 src/components/        componentes do design system (Botao, Selo, Campo, CartaoAluno…)
 src/app/(escola)/      painel da escola: início, alunos, matrículas, turmas, usuários, chamada, frequência, calendário
 src/app/familia/       área da família
+src/app/page.tsx       site da escola (página inicial pública); src/app/noticias/ notícias e eventos
+src/app/(escola)/site/ equipe: escrever e publicar notícias, pedidos de visita
 ```
 
 ## Próximas entregas
 
-Documentos oficiais em PDF (declarações e histórico), comunicados, relatórios da Educação Infantil. Pendências levantadas na especificação: confirmar o órgão que supervisiona a escola, preencher os atos autorizativos e unificar "Ciências" / "Ciências da Natureza".
+Documentos oficiais em PDF (declarações e histórico), fotos nas notícias, relatórios da Educação Infantil. Pendências levantadas na especificação: confirmar o órgão que supervisiona a escola, preencher os atos autorizativos e unificar "Ciências" / "Ciências da Natureza".

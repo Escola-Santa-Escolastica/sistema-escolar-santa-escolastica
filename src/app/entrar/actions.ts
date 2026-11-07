@@ -17,7 +17,7 @@ const esquema = z.object({
 
 /** Só aceita voltar para caminhos internos (evita redirecionamento aberto). */
 function destinoSeguro(voltar?: string) {
-  return voltar && voltar.startsWith('/') && !voltar.startsWith('//') ? voltar : '/';
+  return voltar && voltar.startsWith('/') && !voltar.startsWith('//') ? voltar : '/painel';
 }
 
 export async function entrar(_: EstadoEntrar, form: FormData): Promise<EstadoEntrar> {
