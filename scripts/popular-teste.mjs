@@ -17,6 +17,7 @@ import { createInterface } from 'node:readline';
 import { randomInt } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { publicacoesExemplo } from './dados-noticias.mjs';
 
 const DOMINIO = 'teste.santaescolastica.example';
 
@@ -306,27 +307,12 @@ if (anoDatas.inicio && hojeSP < anoDatas.inicio) {
 
 // ---------- 6. Notícias de exemplo no site ----------
 console.log('6/6 Notícias de exemplo no site');
-const turmaPre2 = idTurma('Pré II · Manhã');
-const proximoSabado = (() => {
-  const d = new Date(`${hojeSP}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + ((6 - d.getUTCDay() + 7) % 7 || 7) + 14);
-  return d.toISOString().slice(0, 10);
-})();
-const exemplos = [
-  { slug: 'exemplo-festa-da-familia', tipo: 'evento', titulo: 'Festa da Família (exemplo)', evento_data: proximoSabado, evento_inicio: '09:00', evento_fim: '11:30',
-    resumo: 'Uma manhã de brincadeiras, apresentações das turmas e lanche partilhado. Publicação de teste.',
-    texto: 'Este é um texto de exemplo do ambiente de teste.\n\nAs famílias são convidadas para uma manhã de convivência na escola.' },
-  { slug: 'exemplo-projeto-horta', tipo: 'noticia', titulo: 'Projeto horta: as crianças plantaram (exemplo)',
-    resumo: 'O Pré I começou a cuidar de uma pequena horta no pátio. Publicação de teste.',
-    texto: 'Texto de exemplo do ambiente de teste.\n\nCada criança ficou responsável por regar uma muda durante a semana.' },
-  { slug: 'exemplo-aviso-dia-do-brinquedo', tipo: 'comunicado', titulo: 'Dia do brinquedo no Pré II (exemplo)', visibilidade: 'turma', turma_id: turmaPre2,
-    resumo: 'Na sexta, cada criança pode trazer um brinquedo de casa. Aviso de teste só para as famílias do Pré II · Manhã.', texto: '' },
-];
 let novasPub = 0;
-for (const e of exemplos) {
+for (const e of publicacoesExemplo(hojeSP, Object.fromEntries(turmas.map((t) => [t.nome, t.id])))) {
+  if (e.visibilidade === 'turma' && !e.turma_id) continue;
   const ja = ok(await admin.from('publicacoes').select('id').eq('slug', e.slug).maybeSingle(), 'Erro ao ler publicações');
   if (ja) continue;
-  ok(await admin.from('publicacoes').insert({ visibilidade: 'publico', ...e, status: 'publicada', autor: ids.direcao ?? null }), `Erro ao criar a publicação ${e.titulo}`);
+  ok(await admin.from('publicacoes').insert({ visibilidade: 'publico', status: 'publicada', autor: ids.direcao ?? null, ...e }), `Erro ao criar a publicação ${e.titulo}`);
   novasPub++;
 }
 console.log(`   ${novasPub} publicação(ões) de exemplo criada(s)${novasPub === 0 ? ' (já existiam)' : ''}`);

@@ -118,7 +118,8 @@ Um site com **dados fictícios** e um login por perfil, para a equipe testar pel
    | `NEXT_PUBLIC_AMBIENTE` | `teste` |
 
 4. **Supabase › Authentication › URL Configuration:** *Site URL* = o endereço da Vercel; em *Redirect URLs* adicione `https://SEU-ENDERECO/auth/confirmar`.
-5. **Dados de teste:** na pasta do projeto, rode `npm run popular-teste` e informe o Project URL, as duas chaves e uma senha. O script cria 6 logins de teste (direção, coordenação, secretaria, professora, auxiliar e mãe), 9 crianças fictícias com matrículas em situações diferentes, notícias de exemplo no site e, se quiser, o seu login de administrador. Pode rodar de novo sem duplicar nada.
+5. **Dados de teste:** na pasta do projeto, rode `npm run popular-teste` e informe o Project URL, as duas chaves e uma senha. O script cria 6 logins de teste (direção, coordenação, secretaria, professora, auxiliar e mãe), 9 crianças fictícias com matrículas em situações diferentes, notícias de exemplo no site e, se quiser, o seu login de administrador. Pode rodar de novo sem duplicar nada. Atenção: ao rodar de novo, a senha de todos os logins de teste passa a ser a que você digitar.
+6. **Só notícias de exemplo:** `npm run noticias-exemplo` pede o Project URL e a Secret key e só **adiciona** notícias, eventos, avisos de turma e pedidos de visita fictícios. Não apaga nem altera nada e não mexe em logins ou senhas; rodando de novo, pula o que já existe.
 
 O plano gratuito do Supabase pausa o projeto depois de 7 dias sem uso; basta reativar no painel.
 

@@ -11,7 +11,8 @@
     "test:db": "bash supabase/tests/run.sh",
     "local": "powershell -ExecutionPolicy Bypass -File scripts/iniciar-local.ps1",
     "criar-admin": "node scripts/criar-admin.mjs",
-    "popular-teste": "node scripts/popular-teste.mjs"
+    "popular-teste": "node scripts/popular-teste.mjs",
+    "noticias-exemplo": "node scripts/noticias-exemplo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
