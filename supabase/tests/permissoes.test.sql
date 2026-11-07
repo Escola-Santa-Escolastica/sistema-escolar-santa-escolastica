@@ -300,4 +300,117 @@ select tst.falha(format('select public.mudar_status_matricula(%L, ''cancelado'',
   'sem perfil não cancela matrícula', 'não permitida');
 reset role;
 
+-- =====================================================================
+\echo '--- Frequência'
+-- Simula quarta-feira, 17/03/2027 às 9h (aulas de 01/02 a 10/12/2027)
+set app.hoje_simulado = '2027-03-17';
+set app.agora_simulada = '09:00';
+update public.anos_letivos set inicio = '2027-02-01', fim = '2027-12-10' where ativo;
+select tst.ok(public.e_dia_letivo('2027-03-17'), '17/03/2027 é dia letivo');
+select tst.ok(not public.e_dia_letivo('2027-03-26'), 'Sexta-feira Santa (feriado já cadastrado) não é dia letivo');
+select tst.ok(not public.e_dia_letivo('2027-03-20'), 'sábado não é dia letivo');
+select tst.ok(not public.e_dia_letivo('2027-01-15'), 'antes do início das aulas não é dia letivo');
+select a.id as aluno_maria from public.alunos a join public.pessoas p on p.id = a.pessoa_id where p.nome = 'Maria Clara Souza' \gset
+select a.id as aluno_lucas from public.alunos a join public.pessoas p on p.id = a.pessoa_id where p.nome = 'Lucas Andrade Melo' \gset
+select a.id as aluno_pedro from public.alunos a join public.pessoas p on p.id = a.pessoa_id where p.nome = 'Pedro Henrique Lima' \gset
+
+\echo '--- Frequência: professora do Pré II'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', false);
+select public.salvar_chamada(:'turma_pre2', '2027-03-17', array[:'aluno_lucas']::uuid[]) as chamada_hoje \gset
+select tst.ok(tst.conta('select * from public.frequencias') = 2, 'chamada grava um registro por aluno da turma');
+select tst.ok(tst.conta('select * from public.frequencias where situacao = ''falta''') = 1, 'Lucas com falta');
+select public.salvar_chamada(:'turma_pre2', '2027-03-17', '{}');
+select tst.ok(tst.conta('select * from public.frequencias where situacao = ''falta''') = 0, 'professora corrige a chamada no mesmo dia');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-16'', ''{}'')', :'turma_pre2'),
+  'professora não grava dia anterior', 'coordenação');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-17'', ''{}'')', :'turma_pre1'),
+  'professora não faz chamada de outra turma', 'não pode');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-17'', array[%L]::uuid[])', :'turma_pre2', :'aluno_pedro'),
+  'não marca falta de aluno de outra turma', 'não é desta turma');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-18'', ''{}'')', :'turma_pre2'),
+  'não faz chamada de dia futuro', 'ainda não chegou');
+select tst.falha('insert into public.frequencias (chamada_id, aluno_id, situacao) select id, aluno_id, ''falta'' from public.frequencias limit 1',
+  'não grava frequência direto na tabela');
+reset role;
+set app.agora_simulada = '18:30';
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', false);
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-17'', ''{}'')', :'turma_pre2'),
+  'depois das 18h a professora não corrige', 'Depois das 18h00');
+reset role;
+set app.agora_simulada = '09:00';
+
+\echo '--- Frequência: auxiliar e outros professores'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a7', false);
+select tst.ok(tst.conta('select * from public.frequencias') = 2, 'auxiliar vê a frequência da turma');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-17'', ''{}'')', :'turma_pre2'),
+  'auxiliar não grava a chamada', 'não pode');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a6', false);
+select tst.ok(tst.conta('select * from public.frequencias') = 0, 'professor de outra turma não vê a frequência');
+select tst.ok(tst.conta('select * from public.chamadas') = 0, 'professor de outra turma não vê as chamadas');
+reset role;
+
+\echo '--- Frequência: coordenação corrige dias anteriores'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a3', false);
+select public.salvar_chamada(:'turma_pre2', '2027-03-15', array[:'aluno_maria']::uuid[]);
+select public.salvar_chamada(:'turma_pre2', '2027-03-16', array[:'aluno_maria']::uuid[]);
+select public.salvar_chamada(:'turma_pre2', '2027-03-17', array[:'aluno_maria']::uuid[]);
+select tst.ok((select faltas_seguidas_sem_aviso from public.vw_frequencia_aluno where aluno_id = :'aluno_maria') = 3,
+  '3 faltas seguidas sem aviso');
+select tst.ok((select percentual from public.vw_frequencia_aluno where aluno_id = :'aluno_lucas') = 100, 'Lucas com 100%');
+select public.marcar_frequencia(:'turma_pre2', '2027-03-15', :'aluno_lucas', 'falta');
+select tst.ok((select faltas from public.vw_frequencia_aluno where aluno_id = :'aluno_lucas') = 1, 'coordenação corrige um aluno num dia');
+select tst.falha(format('select public.marcar_frequencia(%L, ''2027-03-12'', %L, ''falta'')', :'turma_pre2', :'aluno_lucas'),
+  'não corrige dia sem chamada', 'Ainda não há chamada');
+reset role;
+select tst.ok(tst.conta('select * from public.auditoria where tabela = ''frequencias'' and acao = ''UPDATE''') >= 1, 'correções ficam na auditoria');
+
+\echo '--- Frequência: família'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a8', false);
+select tst.ok(tst.conta('select * from public.frequencias') = 6, 'mãe vê a frequência dos dois filhos');
+select tst.ok(tst.conta('select * from public.chamadas') = 3, 'mãe vê as datas das chamadas dos filhos');
+select public.registrar_justificativa(:'aluno_maria', '2027-03-16', 'doenca', 'Febre') as just_maria \gset
+select tst.ok((select status from public.justificativas_falta where id = :'just_maria') = 'pendente', 'justificativa depois da falta fica em análise');
+select tst.ok((select faltas_seguidas_sem_aviso from public.vw_frequencia_aluno where aluno_id = :'aluno_maria') = 1,
+  'falta com justificativa em análise não conta como "sem aviso"');
+select tst.falha(format('select public.registrar_justificativa(%L, ''2027-03-16'', ''doenca'')', :'aluno_maria'),
+  'não reenvia justificativa em análise', 'em análise');
+select tst.falha(format('select public.registrar_justificativa(%L, ''2027-03-17'', ''doenca'')', :'aluno_lucas'),
+  'não justifica dia em que esteve presente', 'Não há falta');
+select public.registrar_justificativa(:'aluno_lucas', '2027-03-18', 'familia', 'Viagem curta') as aviso_lucas \gset
+select tst.ok((select status = 'aceita' and aviso_previo from public.justificativas_falta where id = :'aviso_lucas'), 'aviso prévio vale na hora');
+select tst.falha(format('select public.registrar_justificativa(%L, ''2027-03-20'', ''doenca'')', :'aluno_lucas'),
+  'não avisa falta em dia sem aula', 'não é dia letivo');
+select tst.falha(format('select public.registrar_justificativa(%L, ''2027-03-18'', ''doenca'')', :'aluno_pedro'),
+  'não justifica falta de outra criança', 'não pode');
+select tst.falha(format('select public.analisar_justificativa(%L, true)', :'just_maria'), 'família não aceita a própria justificativa', 'Só a coordenação');
+select tst.falha(format('select public.salvar_chamada(%L, ''2027-03-17'', ''{}'')', :'turma_pre2'), 'família não faz chamada', 'não pode');
+reset role;
+
+\echo '--- Frequência: gestão analisa'
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', false);
+select public.analisar_justificativa(:'just_maria', true);
+select tst.ok((select justificadas from public.vw_frequencia_aluno where aluno_id = :'aluno_maria') = 1, 'secretaria aceita a justificativa');
+select tst.ok((select percentual from public.vw_frequencia_aluno where aluno_id = :'aluno_maria') = 0,
+  'falta justificada continua contando como ausência');
+select tst.falha(format('select public.analisar_justificativa(%L, false)', :'just_maria'), 'não analisa duas vezes', 'já foi analisada');
+select public.registrar_justificativa(:'aluno_maria', '2027-03-15', 'doenca', 'Atestado entregue na secretaria') as just_sec \gset
+select tst.ok((select status from public.justificativas_falta where id = :'just_sec') = 'aceita', 'justificativa da secretaria já entra aceita');
+select tst.ok(tst.linhas('insert into public.calendario_dias (ano_letivo_id, data, tipo, descricao) select id, ''2027-03-19'', ''sem_aula'', ''Formação de professores'' from public.anos_letivos where ativo') = 1,
+  'secretaria marca dia sem aula');
+select tst.ok(not public.e_dia_letivo('2027-03-19'), 'dia sem aula deixa de ser letivo');
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', false);
+select tst.ok(tst.linhas('delete from public.calendario_dias') = 0, 'professora não mexe no calendário');
+reset role;
+update public.anos_letivos set inicio = null, fim = null where ativo;
+reset app.hoje_simulado;
+reset app.agora_simulada;
+
 \echo '=== TODOS OS TESTES PASSARAM ==='

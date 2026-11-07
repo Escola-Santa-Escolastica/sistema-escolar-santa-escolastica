@@ -210,3 +210,127 @@ fieldset.bloco { margin: 0; min-inline-size: 0; }
   .busca { width: 100%; }
   .busca-campo { flex: 1; width: auto; }
 }
+
+/* ===================== Frequência ===================== */
+
+/* Chamada (linha igual ao componente LinhaChamada do design system) */
+.chamada-resumo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.chamada-lista { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-raised); }
+.se-chamada { border-bottom: 1px solid var(--line); background: var(--surface-raised); }
+.se-chamada:last-child { border-bottom: 0; }
+.se-chamada-falta { background: var(--falta-soft); }
+.se-chamada-linha { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.se-chamada-corpo { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.se-chamada-nome { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.se-chamada-alertas { display: flex; flex-wrap: wrap; gap: 4px; }
+.se-chamada-seletor { flex: none; display: inline-flex; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--radius-full); background: var(--surface-raised); }
+.se-chamada-op { font: inherit; font-size: 14px; font-weight: 600; min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--ink-muted); cursor: pointer; }
+.se-chamada-op.is-on { background: var(--verde); color: var(--on-verde); }
+.se-chamada-op-falta.is-on { background: var(--falta); color: var(--on-falta); }
+.se-chamada-op:disabled { cursor: default; }
+.se-chamada-op:focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+.se-chamada-aviso { margin: 0; padding: 0 16px 12px 68px; font-size: 14px; line-height: 20px; color: var(--ink); }
+.chamada-rodape { flex-direction: column; align-items: stretch; }
+.chamada-ok { margin: 0; text-align: center; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--verde); }
+
+/* Cartões de turma no painel */
+.grade-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.cartao-turma { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--ink); text-decoration: none; }
+.cartao-turma:hover { box-shadow: var(--shadow-sm); color: var(--ink); }
+.cartao-turma-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.numero-grande { font-family: var(--font-serif); font-size: 32px; line-height: 36px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Diário do mês: grade aluno × dia */
+.legenda-freq { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 14px; line-height: 20px; }
+.legenda-freq span { display: inline-flex; align-items: center; gap: 8px; }
+.grade-freq { border-collapse: separate; border-spacing: 0; font-size: 14px; line-height: 20px; width: 100%; }
+.grade-freq th, .grade-freq td { border-bottom: 1px solid var(--line); padding: 0; text-align: center; }
+.grade-freq tr:last-child th, .grade-freq tr:last-child td { border-bottom: 0; }
+.grade-freq thead th { background: var(--surface-sunken); font-weight: 600; color: var(--ink-muted); padding: 6px 2px; font-size: 12px; line-height: 15px; }
+.grade-freq thead th b { display: block; color: var(--ink); font-size: 14px; }
+.grade-freq .col-nome { position: sticky; left: 0; z-index: 1; background: var(--surface-raised); text-align: left; padding: 6px 16px; min-width: 180px; border-right: 1px solid var(--line); }
+.grade-freq thead .col-nome { background: var(--surface-sunken); }
+.grade-freq .col-num { padding: 6px 12px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.grade-freq .col-hoje { background: var(--verde-soft); }
+.cel { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; margin: 2px; border-radius: 6px; border: 1px solid transparent; font-size: 13px; font-weight: 700; text-decoration: none; color: var(--ink-muted); box-sizing: border-box; }
+a.cel:hover { border-color: var(--line-strong); }
+.cel-p { color: var(--line-strong); }
+.cel-f { background: var(--falta); color: var(--on-falta); }
+.cel-j { background: var(--dourado-soft); color: var(--dourado-ink); border-color: var(--dourado); }
+.cel-a { background: var(--surface-raised); color: var(--falta); border: 2px dashed var(--falta); }
+.cel-x { background: var(--surface-sunken); }
+.cel-on { box-shadow: var(--focus-ring); }
+.cel:focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+
+/* Barra de frequência com as marcas de 60% e do aviso */
+.barra-freq { position: relative; height: 14px; border-radius: 9999px; background: var(--surface-sunken); margin-top: 8px; }
+.barra-freq-valor { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 9999px; background: var(--verde); }
+.barra-freq-valor.baixa { background: var(--alerta); }
+.barra-freq-marca { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--alerta); }
+.barra-freq-marca.aviso { background: var(--dourado-ink); }
+.barra-freq-rotulos { position: relative; height: 20px; margin-top: 6px; font-size: 13px; line-height: 18px; font-weight: 600; }
+.barra-freq-rotulos span { position: absolute; white-space: nowrap; transform: translateX(-50%); }
+.numeros { margin: 0; display: flex; flex-wrap: wrap; gap: 12px 32px; }
+.numeros dt { font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
+.numeros dd { margin: 2px 0 0; font-size: 22px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Calendário do mês (ficha do aluno e família) */
+.mes-semana, .mes-dias { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.mes-semana { font-size: 13px; font-weight: 600; color: var(--ink-muted); }
+.dia-cal { display: flex; flex-direction: column; gap: 2px; min-height: 54px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-raised); font-size: 12px; line-height: 15px; box-sizing: border-box; overflow-wrap: anywhere; }
+.dia-cal b { font-size: 14px; }
+.dia-cal-p { color: var(--verde); }
+.dia-cal-f { background: var(--falta); border-color: var(--falta); color: var(--on-falta); }
+.dia-cal-j { background: var(--dourado-soft); border-color: var(--dourado); color: var(--dourado-ink); }
+.dia-cal-a { border: 2px dashed var(--falta); color: var(--falta); }
+.dia-cal-x { background: var(--surface-sunken); border-color: transparent; color: var(--ink-muted); }
+.dia-cal-vazio { border-color: transparent; background: transparent; }
+.dia-cal-hoje { box-shadow: var(--focus-ring); }
+
+/* Calendário letivo (ano) */
+.meses-ano { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.mes-ano { background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.mes-ano-grade { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; font-size: 12px; line-height: 16px; text-align: center; }
+.mes-ano-grade > span { font-weight: 600; color: var(--ink-muted); }
+.mes-ano-grade form { display: contents; }
+.d { height: 30px; width: 100%; border-radius: 6px; border: 1px solid transparent; background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink-muted); padding: 0; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; }
+button.d { cursor: pointer; }
+.d-l { background: var(--verde-soft); color: var(--verde); }
+.d-s { background: var(--surface-sunken); text-decoration: line-through; }
+.d-f { background: var(--dourado-soft); color: var(--dourado-ink); border-color: var(--dourado); }
+.d-r { background: var(--azul-soft); color: var(--azul); }
+.d-e { box-shadow: inset 0 0 0 2px var(--verde); }
+.d:focus-visible { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+.legenda-freq .d { width: 26px; height: 22px; }
+.medidor { height: 10px; border-radius: 9999px; background: var(--surface-sunken); overflow: hidden; }
+.medidor > div { height: 100%; border-radius: 9999px; background: var(--verde); }
+.medidor > div.baixa { background: var(--alerta); }
+
+/* Escolha do filho (família) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 9999px; border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--ink); font-weight: 600; text-decoration: none; }
+.chip[aria-current='page'] { background: var(--verde); border-color: var(--verde); color: var(--on-verde); }
+
+@media (max-width: 600px) {
+  .se-chamada-linha { flex-wrap: wrap; padding: 10px 12px; gap: 8px 12px; }
+  .se-chamada-corpo { flex: 1 1 140px; }
+  .se-chamada-seletor { margin-left: auto; }
+  .se-chamada-aviso { padding: 0 12px 10px 12px; }
+  .numeros { gap: 8px 20px; }
+  .mes-semana, .mes-dias { gap: 3px; }
+  .dia-cal { min-height: 44px; padding: 4px; font-size: 11px; }
+  .dia-cal span:not(.sr-only) { display: none; }
+}
+
+@media print {
+  .cabecalho, .faixa-teste, .nao-imprimir, .aviso-sessao { display: none !important; }
+  .pagina { padding: 0; max-width: none; }
+  .tabela-caixa { overflow: visible; }
+  .grade-freq .col-nome { position: static; }
+  body { background: #fff; }
+}
+.tabela .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.abas { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.abas a { padding: 10px 14px; color: var(--ink-muted); text-decoration: none; white-space: nowrap; }
+.abas a:hover { color: var(--ink); }
+.abas a[aria-current='page'] { font-weight: 600; color: var(--verde); border-bottom: 3px solid var(--verde); margin-bottom: -1px; }

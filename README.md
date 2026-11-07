@@ -2,7 +2,7 @@
 
 Sistema de gestão escolar do Instituto Santa Escolástica (Itapecerica/MG), Educação Infantil a partir de 4 anos.
 
-**Primeira entrega:** base do sistema (login, 10 perfis de acesso, permissões no banco) + cadastro do aluno e fluxo de matrícula.
+**Entregas:** 1) base do sistema (login, 10 perfis de acesso, permissões no banco) + cadastro do aluno e fluxo de matrícula; 2) frequência diária e calendário letivo.
 
 | Módulo | O que já faz |
 | --- | --- |
@@ -11,7 +11,9 @@ Sistema de gestão escolar do Instituto Santa Escolástica (Itapecerica/MG), Edu
 | Matrícula | Ficha Individual completa, número automático (2027-0001), checklist de documentos, fluxo secretaria → direção, enturmação com controle de vagas, linha do tempo |
 | Alunos | Lista com alertas de saúde, ficha completa, edição por seção, responsáveis e autorizados a buscar, acesso da família |
 | Turmas | Anos letivos (um ativo por vez), turmas por etapa e turno, capacidade |
-| Família | Pai, mãe ou responsável legal vê os próprios filhos, a situação da matrícula e os documentos pendentes |
+| Frequência | Chamada da professora (celular e tablet), painel do dia da gestão, diário do mês por turma (imprimível), aba Frequência na ficha, justificativas e alertas |
+| Calendário | Período das aulas, feriados, recesso e dias sem aula; conta os 200 dias e as 800 horas exigidos |
+| Família | Pai, mãe ou responsável legal vê os próprios filhos, a situação da matrícula, os documentos pendentes e a frequência; avisa e justifica faltas |
 
 ## Tecnologia
 
@@ -55,6 +57,15 @@ Regras em `src/lib/limite-sessao.ts`, aplicadas pelo `src/proxy.ts` a cada pági
 - Ao fechar o navegador, o registro de uso some e a próxima visita pede a senha.
 
 Ao encerrar, o sistema também revoga a sessão no Supabase (não basta guardar o cookie).
+
+### Frequência
+
+Regras no banco (`supabase/migrations/*_frequencia.sql`):
+
+- **Chamada**: a professora regente grava só a chamada do dia, até as 18h; depois disso, e em dias anteriores, só a coordenação, a secretaria ou a direção corrigem. Toda correção vai para a auditoria.
+- **Dia letivo**: dia útil dentro do período das aulas que não está marcado como feriado, recesso ou sem aula no Calendário. Enquanto o período não é definido, qualquer dia útil vale.
+- **Avisos e justificativas**: o aviso da família antes da chamada vale na hora (a criança já aparece com falta e o recado). A justificativa depois da falta fica em análise até a gestão aceitar. Justificativa da secretaria entra aceita. Falta justificada continua contando como ausência nos 60% (LDB, art. 31).
+- **Alertas**: frequência no ano abaixo de 75% (com 10 dias ou mais) e 3 faltas seguidas sem aviso. Os dois números ficam na tabela `escola` (`frequencia_alerta_pct`, `faltas_seguidas_alerta`), assim como o horário limite (`chamada_editavel_ate`).
 
 ## Testar no seu computador (Windows)
 
@@ -162,10 +173,10 @@ supabase/tests/        testes de permissões e do fluxo de matrícula
 src/proxy.ts           renova a sessão e exige login
 src/lib/               sessão, perfis, validação da ficha, formatação
 src/components/        componentes do design system (Botao, Selo, Campo, CartaoAluno…)
-src/app/(escola)/      painel da escola: início, alunos, matrículas, turmas, usuários
+src/app/(escola)/      painel da escola: início, alunos, matrículas, turmas, usuários, chamada, frequência, calendário
 src/app/familia/       área da família
 ```
 
 ## Próximas entregas
 
-Frequência diária, documentos oficiais em PDF (declarações e histórico), comunicados, relatórios da Educação Infantil. Pendências levantadas na especificação: confirmar o órgão que supervisiona a escola, preencher os atos autorizativos e unificar "Ciências" / "Ciências da Natureza".
+Documentos oficiais em PDF (declarações e histórico), comunicados, relatórios da Educação Infantil. Pendências levantadas na especificação: confirmar o órgão que supervisiona a escola, preencher os atos autorizativos e unificar "Ciências" / "Ciências da Natureza".

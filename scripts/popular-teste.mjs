@@ -162,7 +162,7 @@ async function entrarComo(email, senhaLogin = senha) {
 }
 
 // ---------- 1. Ano letivo e turmas ----------
-console.log('\n1/4 Turmas do ano letivo ativo');
+console.log('\n1/5 Turmas do ano letivo ativo');
 const ano = ok(await admin.from('anos_letivos').select('id, ano').eq('ativo', true).maybeSingle(), 'Não achei o ano letivo (as migrations foram aplicadas?)');
 if (!ano) falhar('Nenhum ano letivo ativo. Aplique as migrations do sistema antes (npx supabase db push).');
 const etapas = ok(await admin.from('etapas').select('id, nome'), 'Erro ao ler etapas');
@@ -177,7 +177,7 @@ const idTurma = (nome) => turmas.find((t) => t.nome === nome)?.id;
 console.log(`   ${turmas.length} turmas em ${ano.ano}`);
 
 // ---------- 2. Logins ----------
-console.log('2/4 Logins de teste');
+console.log('2/5 Logins de teste');
 const usuarios = ok(await admin.auth.admin.listUsers({ perPage: 1000 }), 'Não consegui listar usuários (confira a chave secreta)').users;
 async function garantirLogin({ email, nome, papeis, turma }, senhaLogin) {
   let u = usuarios.find((x) => x.email?.toLowerCase() === email.toLowerCase());
@@ -208,7 +208,7 @@ if (adminEmail) {
 console.log(`   ${LOGINS.length} logins de teste${adminEmail ? ' + o seu de administrador' : ''}`);
 
 // ---------- 3. Matrículas pelo fluxo real ----------
-console.log('3/4 Crianças fictícias e matrículas (pelo fluxo do sistema)');
+console.log('3/5 Crianças fictícias e matrículas (pelo fluxo do sistema)');
 const secretaria = await entrarComo(LOGINS.find((l) => l.chave === 'secretaria').email);
 const direcao = await entrarComo(LOGINS.find((l) => l.chave === 'direcao').email);
 const ja = ok(await admin.from('vw_matriculas').select('aluno_nome').eq('ano_letivo_id', ano.id), 'Erro ao ler matrículas').map((m) => m.aluno_nome);
@@ -245,7 +245,7 @@ for (const c of CRIANCAS) {
 console.log(`   ${criadas} matrícula(s) criada(s)${criadas === 0 ? ' (já existiam)' : ''}`);
 
 // ---------- 4. Liga a mãe de teste às crianças dela ----------
-console.log('4/4 Acesso da família de teste');
+console.log('4/5 Acesso da família de teste');
 const pessoaMae = ok(await admin.from('pessoas').select('id').eq('user_id', ids.mae).single(), 'Erro ao achar a mãe de teste');
 const vinculosJuliana = ok(await admin.from('pessoas').select('id').eq('email', `mae@${DOMINIO}`).is('user_id', null), 'Erro ao achar os vínculos da mãe');
 // a ficha criou a "Juliana" como responsável; a pessoa com login herda os dados e os vínculos dela
@@ -255,6 +255,54 @@ for (const p of vinculosJuliana) {
 }
 const filhos = ok(await admin.from('vinculos').select('id').eq('pessoa_id', pessoaMae.id), 'Erro ao conferir os vínculos');
 console.log(`   mãe de teste ligada a ${filhos.length} criança(s)`);
+
+// ---------- 5. Frequência de exemplo ----------
+console.log('5/5 Frequência de exemplo (últimos 10 dias úteis)');
+const hojeSP = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+const anoDatas = ok(await admin.from('anos_letivos').select('inicio, fim').eq('id', ano.id).single(), 'Erro ao ler o ano letivo');
+if (anoDatas.inicio && hojeSP < anoDatas.inicio) {
+  console.log('   pulei: as aulas do ano letivo ainda não começaram (o período já foi definido no Calendário)');
+} else {
+  const dias = [];
+  for (const d = new Date(`${hojeSP}T12:00:00Z`); dias.length < 10;) {
+    d.setUTCDate(d.getUTCDate() - 1);
+    const w = d.getUTCDay();
+    if (w > 0 && w < 6) dias.unshift(d.toISOString().slice(0, 10));
+  }
+  const mats = ok(await admin.from('matriculas').select('aluno_id, turma_id, aluno:alunos(pessoa:pessoas(nome))')
+    .eq('ano_letivo_id', ano.id).eq('status', 'matriculado').not('turma_id', 'is', null), 'Erro ao ler as turmas das crianças');
+  const nomeDe = (m) => m.aluno?.pessoa?.nome ?? '';
+  // Situações para testar: faltas seguidas sem aviso, falta justificada, justificativa em análise
+  const faltas = {
+    'Isabela Prado': { 7: null, 8: null, 9: null },
+    'Helena Martins': { 2: { motivo: 'doenca', observacao: 'Atestado de virose entregue na secretaria', status: 'aceita' } },
+    'Maria Clara Souza': { 6: { motivo: 'doenca', observacao: 'Consulta com a pediatra', status: 'pendente' } },
+    'Pedro Henrique Lima': { 4: null },
+  };
+  let novas = 0;
+  for (const turmaId of [...new Set(mats.map((m) => m.turma_id))]) {
+    for (const [i, dia] of dias.entries()) {
+      const ex = ok(await admin.from('chamadas').select('id').eq('turma_id', turmaId).eq('data', dia).maybeSingle(), 'Erro ao ler chamadas');
+      if (ex) continue;
+      const ch = ok(await admin.from('chamadas').insert({ turma_id: turmaId, data: dia, registrada_por: ids.professora ?? null })
+        .select('id').single(), 'Erro ao criar chamada de exemplo');
+      const daTurma = mats.filter((m) => m.turma_id === turmaId);
+      ok(await admin.from('frequencias').insert(daTurma.map((m) => ({
+        chamada_id: ch.id, aluno_id: m.aluno_id, situacao: faltas[nomeDe(m)] && i in faltas[nomeDe(m)] ? 'falta' : 'presente',
+      }))), 'Erro ao gravar frequência de exemplo');
+      for (const m of daTurma) {
+        const j = faltas[nomeDe(m)]?.[i];
+        if (!j) continue;
+        ok(await admin.from('justificativas_falta').upsert({
+          aluno_id: m.aluno_id, data: dia, motivo: j.motivo, observacao: j.observacao, aviso_previo: false, status: j.status,
+          enviada_por: ids.mae, analisada_em: j.status === 'aceita' ? new Date().toISOString() : null,
+        }, { onConflict: 'aluno_id,data', ignoreDuplicates: true }), 'Erro ao gravar justificativa de exemplo');
+      }
+      novas++;
+    }
+  }
+  console.log(`   ${novas} chamada(s) de exemplo criada(s)${novas === 0 ? ' (já existiam)' : ''}`);
+}
 
 // ---------- resumo ----------
 console.log('\n=====================================================');

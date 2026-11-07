@@ -1,10 +1,11 @@
-import { VigiaSessao } from '@/components/vigia-sessao';
 import type { Metadata } from 'next';
+import { VigiaSessao } from '@/components/vigia-sessao';
+import { CabecalhoFamilia } from '@/components/cabecalho-familia';
 import { exigirSessao } from '@/lib/sessao';
 import { criarClienteSupabase } from '@/lib/supabase/server';
-import { sair } from '@/app/entrar/actions';
 import { primeiroNome, STATUS_MATRICULA, TURNOS, type StatusMatricula, type Turno } from '@/lib/formatos';
-import { Botao, CartaoAluno, Selo, alertasDe } from '@/components/ui';
+import { BotaoLink, CartaoAluno, Selo, alertasDe } from '@/components/ui';
+import { MINIMO_LEGAL_PCT, type ResumoAluno } from '@/lib/frequencia';
 
 export const metadata: Metadata = { title: 'Área da família' };
 
@@ -30,26 +31,21 @@ export default async function Familia() {
 
   const ids = filhos.map((f) => f.aluno_id);
   const matIds = filhos.map((f) => f.id);
-  const [{ data: alertas }, { data: pendentes }] = await Promise.all([
+  const [{ data: alertas }, { data: pendentes }, { data: resumos }] = await Promise.all([
     ids.length ? supabase.from('vw_alertas_aluno').select('*').in('aluno_id', ids) : Promise.resolve({ data: [] as never[] }),
     matIds.length
       ? supabase.from('documentos_entregues').select('matricula_id, status, tipo:tipos_documento(nome, obrigatorio)').in('matricula_id', matIds).eq('status', 'pendente')
       : Promise.resolve({ data: [] as never[] }),
+    ids.length ? supabase.from('vw_frequencia_aluno').select('*').in('aluno_id', ids) : Promise.resolve({ data: [] as never[] }),
   ]);
+  const resumoDe = new Map(((resumos ?? []) as ResumoAluno[]).map((r) => [r.aluno_id, r]));
   const alertaDe = new Map((alertas ?? []).map((a: { aluno_id: string }) => [a.aluno_id, a]));
   type Pend = { matricula_id: string; tipo: { nome: string; obrigatorio: boolean } };
   const pend = (pendentes ?? []) as unknown as Pend[];
 
   return (
     <>
-      <header style={{ background: 'var(--surface-raised)', borderBottom: '1px solid var(--line)' }}>
-        <div className="pagina pagina-estreita" style={{ padding: '12px 24px', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/marca/emblema.png" alt="" width={40} height={42} />
-          <span className="marca-nome" style={{ color: 'var(--azul)', fontSize: 16, flexGrow: 1 }}>Instituto Santa Escolástica</span>
-          <form action={sair}><Botao type="submit" tamanho="sm" variante="texto">Sair</Botao></form>
-        </div>
-      </header>
+      <CabecalhoFamilia />
       <main className="pagina pagina-estreita">
         <h1 className="titulo">Olá, {primeiroNome(sessao.nome)}</h1>
         {filhos.length === 0 ? (
@@ -77,6 +73,25 @@ export default async function Familia() {
                 {f.status === 'aguardando_aprovacao' ? <p style={{ margin: 0 }}>Os documentos estão completos. A direção vai aprovar a matrícula.</p> : null}
                 {f.status === 'matriculado' && !f.turma_nome ? <p style={{ margin: 0 }}>Matrícula confirmada. A turma será informada em breve.</p> : null}
               </div>
+              {f.status === 'matriculado' && f.turma_nome ? (() => {
+                const r = resumoDe.get(f.aluno_id);
+                return (
+                  <div className="painel" style={{ display: 'grid', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                      <h2 className="secao-titulo" style={{ fontSize: 20 }}>Frequência</h2>
+                      {r ? <span className="numero-grande" style={{ fontSize: 26 }}>{Math.round(Number(r.percentual))}%</span> : null}
+                    </div>
+                    {r ? (
+                      <div className="selos">
+                        <Selo tom="verde">{r.presencas} {r.presencas === 1 ? 'presença' : 'presenças'}</Selo>
+                        <Selo tom="falta">{r.faltas} {r.faltas === 1 ? 'falta' : 'faltas'}</Selo>
+                        {Number(r.percentual) < MINIMO_LEGAL_PCT ? <Selo tom="alerta">Abaixo do mínimo de {MINIMO_LEGAL_PCT}%</Selo> : null}
+                      </div>
+                    ) : <p style={{ margin: 0 }} className="legenda">Ainda não há chamadas registradas.</p>}
+                    <BotaoLink href={`/familia/frequencia?filho=${f.aluno_id}`} larguraTotal>Ver faltas e avisar falta</BotaoLink>
+                  </div>
+                );
+              })() : null}
             </section>
           );
         })}

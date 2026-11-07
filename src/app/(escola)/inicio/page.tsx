@@ -71,6 +71,9 @@ export default async function Inicio() {
         {temAlgum(sessao.papeis, ['secretaria']) ? (
           <BotaoLink href="/matriculas/nova" variante="primario">Nova matrícula</BotaoLink>
         ) : null}
+        {temAlgum(sessao.papeis, ['professor_regente']) ? (
+          <BotaoLink href="/chamada" variante="primario">Fazer a chamada</BotaoLink>
+        ) : null}
       </div>
 
       {!ano && eGestao ? (

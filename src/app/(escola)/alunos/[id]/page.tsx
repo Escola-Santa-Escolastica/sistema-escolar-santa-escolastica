@@ -9,6 +9,7 @@ import {
   CORES_RACA, formatarCep, formatarCpf, formatarData, formatarTelefone, idadeEmAnos, mascaraRg, mascararCpf, STATUS_MATRICULA, TURNOS,
 } from '@/lib/formatos';
 import { BotaoLink, CartaoAluno, Selo, alertasDe } from '@/components/ui';
+import { AbasAluno } from '@/components/abas-aluno';
 
 export const metadata: Metadata = { title: 'Ficha do aluno' };
 
@@ -58,6 +59,8 @@ export default async function FichaDoAluno({ params }: { params: Promise<{ id: s
           {eGestao && atual ? <BotaoLink href={`/matriculas/${atual.id}`} variante="primario">Ver matrícula</BotaoLink> : null}
         </div>
       </div>
+
+      <AbasAluno id={id} atual="ficha" />
 
       <div className="colunas">
         <div className="coluna-principal">

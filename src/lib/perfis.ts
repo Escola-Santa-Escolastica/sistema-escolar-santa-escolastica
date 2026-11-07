@@ -49,8 +49,11 @@ export type ItemMenu = { href: string; rotulo: string; papeis: Papel[] };
 export const MENU: ItemMenu[] = [
   { href: '/inicio', rotulo: 'Início', papeis: ['direcao', 'coordenacao', 'secretaria', 'professor_regente', 'professor_especialista', 'auxiliar', 'admin'] },
   { href: '/alunos', rotulo: 'Alunos', papeis: ['direcao', 'coordenacao', 'secretaria', 'professor_regente', 'professor_especialista', 'auxiliar'] },
+  { href: '/chamada', rotulo: 'Chamada', papeis: ['professor_regente'] },
   { href: '/matriculas', rotulo: 'Matrículas', papeis: ['direcao', 'coordenacao', 'secretaria'] },
+  { href: '/frequencia', rotulo: 'Frequência', papeis: ['direcao', 'coordenacao', 'secretaria'] },
   { href: '/turmas', rotulo: 'Turmas', papeis: ['direcao', 'coordenacao', 'secretaria'] },
+  { href: '/calendario', rotulo: 'Calendário', papeis: ['direcao', 'coordenacao', 'secretaria'] },
   { href: '/usuarios', rotulo: 'Usuários', papeis: ['admin', 'direcao'] },
 ];
 
