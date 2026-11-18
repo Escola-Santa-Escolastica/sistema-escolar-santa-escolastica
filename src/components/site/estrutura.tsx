@@ -5,8 +5,8 @@ import { Selo } from '@/components/ui';
 
 const LINKS = [
   { href: '/#escola', rotulo: 'A escola' },
-  { href: '/#etapas', rotulo: 'Educação Infantil' },
-  { href: '/#matriculas', rotulo: 'Matrículas' },
+  { href: '/#etapas', rotulo: 'Turmas' },
+  { href: '/matricula', rotulo: 'Matrículas' },
   { href: '/noticias', rotulo: 'Notícias e eventos' },
   { href: '/#contato', rotulo: 'Contato' },
 ];
@@ -20,7 +20,7 @@ function IconePessoa() {
 }
 
 /** Topo do site público, com o botão Entrar (ou "Ir para o sistema" se já estiver logado). */
-export async function CabecalhoSite({ atual }: { atual?: 'noticias' }) {
+export async function CabecalhoSite({ atual }: { atual?: 'noticias' | 'matricula' }) {
   const sessao = await obterSessao();
   const entrar = sessao
     ? <Link href="/painel" className="site-btn site-btn-entrar"><IconePessoa />Ir para o sistema</Link>
@@ -45,7 +45,7 @@ export async function CabecalhoSite({ atual }: { atual?: 'noticias' }) {
           </Link>
           <nav aria-label="Site" className="site-nav">
             {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} aria-current={atual === 'noticias' && l.href === '/noticias' ? 'page' : undefined}>{l.rotulo}</Link>
+              <Link key={l.href} href={l.href} aria-current={atual && l.href === `/${atual}` ? 'page' : undefined}>{l.rotulo}</Link>
             ))}
           </nav>
           <div className="site-cabecalho-acoes">
@@ -85,7 +85,7 @@ export function RodapeSite() {
         </nav>
       </div>
       <div className="site-largura site-rodape-legal">
-        {[SITE.endereco, SITE.telefone, SITE.cnpj ? `CNPJ ${SITE.cnpj}` : null, SITE.atosAutorizativos].filter(Boolean).join(' · ')}
+        {[SITE.endereco, SITE.telefone, SITE.email, SITE.cnpj ? `CNPJ ${SITE.cnpj}` : null, SITE.atosAutorizativos].filter(Boolean).join(' · ')}
       </div>
     </footer>
   );

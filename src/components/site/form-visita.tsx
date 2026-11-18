@@ -27,9 +27,12 @@ export function FormVisita() {
       <CampoTelefone rotulo="Telefone ou WhatsApp" name="telefone" obrigatorio defaultValue={estado.valores?.telefone} />
       <div className="se-campo">
         <label htmlFor="v-idade" className="se-campo-rotulo">Idade da criança no próximo ano</label>
-        <select id="v-idade" name="idade" className="se-campo-input" defaultValue="4 anos (Pré I)">
-          <option>4 anos (Pré I)</option>
-          <option>5 anos (Pré II)</option>
+        <select id="v-idade" name="idade" className="se-campo-input" defaultValue="">
+          <option value="" disabled>Escolha</option>
+          <option>2 anos (Maternal II)</option>
+          <option>3 anos (Maternal III)</option>
+          <option>4 anos (1º Período)</option>
+          <option>5 anos (2º Período)</option>
           <option>Outra idade</option>
         </select>
       </div>

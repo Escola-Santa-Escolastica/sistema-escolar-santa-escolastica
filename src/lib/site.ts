@@ -6,7 +6,8 @@ export const SITE = {
   nome: 'Instituto Santa Escolástica',
   lema: 'FÉ · VIRTUDE · SABEDORIA',
   cidade: 'Itapecerica/MG',
-  endereco: 'Rua Rodrigues Pereira, 327 · Itapecerica/MG',
+  endereco: 'Rua Rodrigues Pereira, 327 · Centro · Itapecerica/MG',
+  email: 'institutosantaescolastica@gmail.com',
   telefone: '(37) 99128-9366',
   telefoneLink: '+5537991289366',
   whatsappLink: 'https://wa.me/5537991289366',
@@ -18,7 +19,7 @@ export const SITE = {
   atosAutorizativos: null as string | null,
 
   chamada: 'Fé, virtude e sabedoria desde os primeiros anos.',
-  subtitulo: 'Uma escola católica de Educação Infantil para crianças a partir de 4 anos, com atenção a cada criança e a família por perto em cada etapa.',
+  subtitulo: 'Uma escola católica de Educação Infantil para crianças de 2 a 5 anos, com atenção a cada criança e a família por perto em cada etapa.',
 
   matriculas: {
     ano: 2027,
@@ -28,7 +29,7 @@ export const SITE = {
 
   apresentacaoTitulo: 'Educar a criança inteira: o coração, o caráter e a inteligência.',
   apresentacao: [
-    'O Instituto Santa Escolástica é uma escola católica de Educação Infantil em Itapecerica, para crianças de 4 e 5 anos.',
+    'O Instituto Santa Escolástica é uma escola católica de Educação Infantil em Itapecerica, para crianças de 2 a 5 anos, do Maternal II ao 2º Período.',
     'Na Educação Infantil, cada dia combina brincadeira, rotina, oração e descoberta, sempre em parceria com os pais.',
   ],
 
@@ -38,9 +39,12 @@ export const SITE = {
     { nome: 'Sabedoria', cor: 'azul', texto: 'Curiosidade, linguagem e pensamento: brincar, ouvir histórias, contar, cantar e descobrir o mundo.' },
   ],
 
+  /** Turmas de 2027 e a idade de referência. `lista` = slug do PDF da lista de material. */
   etapas: [
-    { idade: 4, nome: 'Pré I', texto: 'Rotina acolhedora, brincadeiras, movimento, música e os primeiros contatos com letras e números.' },
-    { idade: 5, nome: 'Pré II', texto: 'Mais autonomia, linguagem oral e escrita, raciocínio e a preparação para o 1º ano do Ensino Fundamental.' },
+    { idade: 2, nome: 'Maternal II', lista: 'maternal-ii', texto: 'Acolhida, cuidado e rotina segura: brincar, explorar texturas e sons, falar e conviver.' },
+    { idade: 3, nome: 'Maternal III', lista: 'maternal-iii', texto: 'Mais autonomia no dia a dia, música, movimento, histórias e as primeiras regras de convivência.' },
+    { idade: 4, nome: '1º Período', lista: '1o-periodo', texto: 'Rotina acolhedora, brincadeiras, movimento, música e os primeiros contatos com letras e números.' },
+    { idade: 5, nome: '2º Período', lista: '2o-periodo', texto: 'Mais autonomia, linguagem oral e escrita, raciocínio e a preparação para o 1º ano do Ensino Fundamental.' },
   ],
   turnos: 'Turnos da manhã e da tarde',
 

@@ -26,7 +26,7 @@ export default async function SiteInicio() {
             <h1 id="t-hero">{SITE.chamada}</h1>
             <p>{SITE.subtitulo}</p>
             <div className="site-hero-acoes">
-              <Link href="#matriculas" className="site-btn site-btn-ouro">Matrículas {SITE.matriculas.ano}</Link>
+              <Link href="/matricula" className="site-btn site-btn-ouro">Matrículas {SITE.matriculas.ano}</Link>
               <Link href="#contato" className="site-btn site-btn-claro">Conhecer a escola</Link>
             </div>
           </div>
@@ -41,10 +41,10 @@ export default async function SiteInicio() {
         <div className="site-largura">
           <strong>Matrículas {SITE.matriculas.ano}</strong>
           <span>
-            {SITE.etapas.map((e) => `${e.nome} (${e.idade} anos)`).join(' e ')}, manhã ou tarde.{' '}
-            {SITE.matriculas.periodo ? <>Período de matrícula: <strong>{SITE.matriculas.periodo}</strong>.</> : 'Período de matrícula: em breve.'}
+            Do {SITE.etapas[0].nome} ao {SITE.etapas[SITE.etapas.length - 1].nome} (2 a 5 anos). Documentos, listas de material e reuniões de pais já estão disponíveis.{' '}
+            {SITE.matriculas.periodo ? <>Período de matrícula: <strong>{SITE.matriculas.periodo}</strong>.</> : null}
           </span>
-          <Link href="#contato" className="site-btn site-btn-verde">Quero saber mais</Link>
+          <Link href="/matricula" className="site-btn site-btn-verde">Ver tudo sobre a matrícula</Link>
         </div>
       </section>
 
@@ -67,12 +67,16 @@ export default async function SiteInicio() {
         <section id="etapas" aria-labelledby="t-etapas" className="site-faixa-clara">
           <div className="site-largura site-secao">
             <span className="site-sobrelinha">EDUCAÇÃO INFANTIL</span>
-            <h2 id="t-etapas">Duas etapas, um mesmo cuidado.</h2>
+            <h2 id="t-etapas">Quatro turmas, um mesmo cuidado.</h2>
             <div className="site-etapas">
               {SITE.etapas.map((e, i) => (
-                <article key={e.nome} className={`site-etapa ${i === 0 ? 'site-etapa-verde' : 'site-etapa-azul'}`}>
+                <article key={e.nome} className={`site-etapa ${i % 2 === 0 ? 'site-etapa-verde' : 'site-etapa-azul'}`}>
                   <span className="site-etapa-idade">{e.idade}</span>
-                  <div><h3>{e.nome} · {e.idade} anos</h3><p>{e.texto}</p></div>
+                  <div>
+                    <h3>{e.nome} · {e.idade} anos</h3>
+                    <p>{e.texto}</p>
+                    <Link href={`/matricula#lista-${e.lista}`} className="site-etapa-link">Lista de material ›</Link>
+                  </div>
                 </article>
               ))}
             </div>
@@ -120,6 +124,7 @@ export default async function SiteInicio() {
             <p>Deixe seu contato e a secretaria liga para combinar um horário. Você conhece as salas, a proposta e tira suas dúvidas sobre a matrícula.</p>
             <dl>
               <div><dt>Endereço</dt><dd>{SITE.endereco}</dd></div>
+              <div><dt>E-mail</dt><dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
               <div><dt>Telefone e WhatsApp</dt><dd><a href={`tel:${SITE.telefoneLink}`}>{SITE.telefone}</a> · <a href={SITE.whatsappLink}>conversar no WhatsApp</a></dd></div>
               {SITE.atendimento ? <div><dt>Atendimento</dt><dd>{SITE.atendimento}</dd></div> : null}
             </dl>

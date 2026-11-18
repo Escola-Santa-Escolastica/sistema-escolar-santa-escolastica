@@ -78,6 +78,6 @@ export function publicacoesExemplo(hoje, turmas) {
 }
 
 export const PEDIDOS_EXEMPLO = [
-  { nome: 'Exemplo — Fernanda Teixeira', telefone: '37900000001', idade_crianca: '4 anos (Pré I)' },
-  { nome: 'Exemplo — Rodrigo Campos', telefone: '37900000002', idade_crianca: '5 anos (Pré II)' },
+  { nome: 'Exemplo — Fernanda Teixeira', telefone: '37900000001', idade_crianca: '4 anos (1º Período)' },
+  { nome: 'Exemplo — Rodrigo Campos', telefone: '37900000002', idade_crianca: '5 anos (2º Período)' },
 ];
