@@ -32,7 +32,7 @@ export default async function SiteInicio() {
           </div>
           <div className="site-hero-brasao" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/marca/emblema-completo.png" alt="" />
+            <img src="/marca/emblema-completo-claro.png" alt="" />
           </div>
         </div>
       </section>
