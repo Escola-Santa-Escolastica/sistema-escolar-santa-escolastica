@@ -43,7 +43,7 @@ export function FormVisita() {
       </div>
       <label className="site-consentimento">
         <input type="checkbox" name="consentimento" />
-        <span>Autorizo a escola a usar estes dados só para entrar em contato comigo sobre a visita.</span>
+        <span>Autorizo a escola a usar estes dados só para entrar em contato comigo sobre a visita. <a href="/privacidade" target="_blank">Política de privacidade</a></span>
       </label>
       <Botao type="submit" variante="primario" larguraTotal disabled={enviando}>{enviando ? 'Enviando…' : 'Enviar'}</Botao>
     </form>

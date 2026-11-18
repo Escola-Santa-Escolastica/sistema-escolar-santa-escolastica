@@ -464,4 +464,12 @@ select tst.ok(not exists (select 1 from public.tipos_documento where nome in ('F
 select tst.ok(exists (select 1 from public.tipos_documento where nome = 'Carteirinha do convênio ou Cartão SUS' and obrigatorio), 'convênio ou Cartão SUS é obrigatório');
 select tst.ok(exists (select 1 from public.tipos_documento where nome = 'CPF do aluno (se houver)' and not obrigatorio), 'CPF do aluno só se houver');
 
+\echo '--- Calendário no site'
+set role anon;
+select tst.ok((public.calendario_publico() ->> 'ano')::int = 2027, 'visitante vê o ano do calendário');
+select tst.ok(jsonb_typeof(public.calendario_publico() -> 'dias') = 'array', 'visitante vê as datas do calendário');
+select tst.falha('select * from public.calendario_dias', 'visitante não lê a tabela do calendário direto', 'permission denied');
+select tst.falha('select * from public.frequencias', 'visitante não lê frequência', 'permission denied');
+reset role;
+
 \echo '=== TODOS OS TESTES PASSARAM ==='

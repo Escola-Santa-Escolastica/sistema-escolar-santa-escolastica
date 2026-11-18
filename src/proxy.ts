@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { avaliarSessao, COOKIE_ATIVIDADE, opcoesCookieAtividade } from '@/lib/limite-sessao';
 
-const ROTAS_PUBLICAS = ['/', '/noticias', '/matricula', '/entrar', '/definir-senha', '/auth/confirmar'];
+const ROTAS_PUBLICAS = ['/', '/noticias', '/matricula', '/calendario-escolar', '/privacidade', '/entrar', '/definir-senha', '/auth/confirmar'];
 /** Consulta do tempo restante: não conta como uso do sistema. */
 const CONSULTA_SESSAO = '/api/sessao';
 
@@ -62,7 +62,7 @@ export async function proxy(request: NextRequest) {
   // Link de convite/troca de senha segue mesmo se havia uma sessão vencida.
   const linkDeEmail = caminho.startsWith('/auth/confirmar');
   // O site público continua aberto mesmo quando a sessão venceu.
-  const paginaDoSite = caminho === '/' || caminho === '/matricula' || caminho === '/noticias' || caminho.startsWith('/noticias/');
+  const paginaDoSite = caminho === '/' || caminho === '/matricula' || caminho === '/calendario-escolar' || caminho === '/privacidade' || caminho === '/noticias' || caminho.startsWith('/noticias/');
   if (!logado && (!publica || (motivo && !linkDeEmail && !paginaDoSite))) {
     const url = request.nextUrl.clone();
     url.pathname = '/entrar';

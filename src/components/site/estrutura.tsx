@@ -20,7 +20,7 @@ function IconePessoa() {
 }
 
 /** Topo do site público, com o botão Entrar (ou "Ir para o sistema" se já estiver logado). */
-export async function CabecalhoSite({ atual }: { atual?: 'noticias' | 'matricula' }) {
+export async function CabecalhoSite({ atual }: { atual?: 'noticias' | 'matricula' | 'calendario-escolar' }) {
   const sessao = await obterSessao();
   const entrar = sessao
     ? <Link href="/painel" className="site-btn site-btn-entrar"><IconePessoa />Ir para o sistema</Link>
@@ -57,6 +57,7 @@ export async function CabecalhoSite({ atual }: { atual?: 'noticias' | 'matricula
               </summary>
               <nav aria-label="Site (menu)">
                 {LINKS.map((l) => <Link key={l.href} href={l.href}>{l.rotulo}</Link>)}
+                <Link href="/calendario-escolar">Calendário escolar</Link>
                 <Link href="/#contato">Agendar uma visita</Link>
               </nav>
             </details>
@@ -67,25 +68,61 @@ export async function CabecalhoSite({ atual }: { atual?: 'noticias' | 'matricula
   );
 }
 
+function IconeRede({ rede }: { rede: 'instagram' | 'facebook' }) {
+  return rede === 'instagram' ? (
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" /></svg>
+  ) : (
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3c-2.8 0-4 1.7-4 4.3V10H7v4h3v7h4v-7h3l1-4h-4V8.6c0-.4.3-.6.6-.6Z" /></svg>
+  );
+}
+
 export function RodapeSite() {
+  const redes = ([['instagram', SITE.instagram], ['facebook', SITE.facebook]] as const).filter(([, url]) => url);
   return (
     <footer className="site-rodape">
       <div className="site-largura site-rodape-inner">
-        <div className="site-marca site-marca-clara">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/marca/emblema.png" alt="" width={52} height={54} />
-          <span>
-            <span className="site-marca-nome">{SITE.nome}</span>
-            <span className="site-marca-lema">{SITE.lema}</span>
-          </span>
+        <div className="site-rodape-col site-rodape-marca">
+          <div className="site-marca site-marca-clara">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/marca/emblema.png" alt="" width={52} height={54} />
+            <span>
+              <span className="site-marca-nome">{SITE.nome}</span>
+              <span className="site-marca-lema">{SITE.lema}</span>
+            </span>
+          </div>
+          <p>Educação Infantil católica em Itapecerica, do Maternal II ao 2º Período.</p>
+          {redes.length ? (
+            <div className="site-rodape-redes">
+              {redes.map(([rede, url]) => (
+                <a key={rede} href={url!} target="_blank" rel="noopener noreferrer" aria-label={rede === 'instagram' ? 'Instagram' : 'Facebook'}><IconeRede rede={rede} /></a>
+              ))}
+            </div>
+          ) : null}
         </div>
-        <nav aria-label="Rodapé" className="site-rodape-links">
-          {LINKS.map((l) => <Link key={l.href} href={l.href}>{l.rotulo}</Link>)}
-          <Link href="/entrar" className="site-rodape-entrar">Entrar no sistema (famílias e equipe)</Link>
+        <div className="site-rodape-col">
+          <h2>Contato</h2>
+          <address>
+            {SITE.endereco}{SITE.cep ? ` · CEP ${SITE.cep}` : ''}<br />
+            <a href={SITE.mapa} target="_blank" rel="noopener noreferrer">Como chegar ›</a>
+          </address>
+          <p><a href={`tel:${SITE.telefoneLink}`}>{SITE.telefone}</a> · <a href={SITE.whatsappLink} target="_blank" rel="noopener noreferrer">WhatsApp</a></p>
+          <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+          {SITE.atendimento ? <p>Atendimento: {SITE.atendimento}</p> : null}
+        </div>
+        <nav aria-label="Rodapé" className="site-rodape-col">
+          <h2>Para as famílias</h2>
+          <ul>
+            <li><Link href="/matricula">Matrículas</Link></li>
+            <li><Link href="/calendario-escolar">Calendário escolar</Link></li>
+            <li><Link href="/noticias">Notícias e eventos</Link></li>
+            <li><Link href="/#contato">Agendar uma visita</Link></li>
+            <li><Link href="/entrar" className="site-rodape-entrar">Entrar no sistema (famílias e equipe)</Link></li>
+          </ul>
         </nav>
       </div>
       <div className="site-largura site-rodape-legal">
-        {[SITE.endereco, SITE.telefone, SITE.email, SITE.cnpj ? `CNPJ ${SITE.cnpj}` : null, SITE.atosAutorizativos].filter(Boolean).join(' · ')}
+        <span>{[`© ${new Date().getFullYear()} ${SITE.nome}`, SITE.cnpj ? `CNPJ ${SITE.cnpj}` : null, SITE.atosAutorizativos].filter(Boolean).join(' · ')}</span>
+        <Link href="/privacidade">Política de privacidade</Link>
       </div>
     </footer>
   );

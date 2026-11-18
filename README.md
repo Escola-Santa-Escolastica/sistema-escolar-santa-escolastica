@@ -75,6 +75,9 @@ Regras no banco (`supabase/migrations/*_frequencia.sql`):
 - **Quem vê**: *Todos* aparece no site; *Só as famílias da escola* e *Só as famílias de uma turma* não aparecem no site, só na área da família (e para a equipe).
 - **Pedidos de visita**: o formulário do site grava nome, telefone e idade da criança, com a autorização da família. Só a gestão lê. No máximo 3 pedidos por telefone por dia.
 - **Textos fixos do site** (endereço, telefone, apresentação, período de matrícula): `src/lib/site.ts`.
+- **Calendário escolar** (`/calendario-escolar`): mostra no site o período das aulas e os feriados, recessos e dias sem aula que a equipe cadastra em Calendário. O site lê só isso, por uma função do banco (`calendario_publico`); a frequência continua fechada.
+- **Política de privacidade** (`/privacidade`): rascunho em `src/app/privacidade/page.tsx`, para a escola revisar. Atualize o texto e a data quando o sistema passar a guardar dados novos ou usar outro fornecedor.
+- **Rodapé**: CEP, horário de atendimento, Instagram e Facebook ficam em `src/lib/site.ts` (em branco não aparecem); o link "Como chegar" abre o endereço no Google Maps.
 - **Matrícula** (`/matricula`): documentos necessários, listas de material das 4 turmas, entrega dos materiais, reuniões de pais e uniforme. Os PDFs oficiais ficam em `public/documentos/matriculas-2027/` e os textos e itens em `src/lib/matriculas-2027.ts`; quando a secretaria mandar uma versão nova, troque os dois.
 
 ## Testar no seu computador (Windows)

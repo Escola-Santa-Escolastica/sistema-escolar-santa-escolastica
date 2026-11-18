@@ -8,6 +8,13 @@ export const SITE = {
   cidade: 'Itapecerica/MG',
   endereco: 'Rua Rodrigues Pereira, 327 · Centro · Itapecerica/MG',
   email: 'institutosantaescolastica@gmail.com',
+  /** Ex.: '35570-000' */
+  cep: null as string | null,
+  /** Link "Como chegar". Troque pelo link do Google Maps da escola, se tiver um. */
+  mapa: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Rua Rodrigues Pereira, 327, Centro, Itapecerica - MG'),
+  /** Endereços completos, ex.: 'https://www.instagram.com/...'. Em branco não aparecem. */
+  instagram: null as string | null,
+  facebook: null as string | null,
   telefone: '(37) 99128-9366',
   telefoneLink: '+5537991289366',
   whatsappLink: 'https://wa.me/5537991289366',

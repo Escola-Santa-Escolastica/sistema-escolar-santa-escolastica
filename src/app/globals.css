@@ -495,12 +495,18 @@ button.d { cursor: pointer; }
 .site-mais-item strong { font-size: 15px; }
 
 .site-rodape { background: var(--verde-profundo); color: #fff; border-top: 4px solid var(--dourado); margin-top: auto; }
-.site-rodape-inner { display: flex; flex-wrap: wrap; gap: 24px 48px; padding-top: 36px; padding-bottom: 24px; }
-.site-rodape-inner .site-marca { flex: 1 1 320px; }
-.site-rodape-links { flex: 1 1 360px; display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 15px; align-content: flex-start; }
-.site-rodape-links a { color: #fff; }
-.site-rodape-links .site-rodape-entrar { color: var(--dourado); font-weight: 600; }
-.site-rodape-legal { padding-bottom: 28px; font-size: 13px; line-height: 18px; color: #c9d6cd; }
+.site-rodape a { color: #fff; }
+.site-rodape-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 28px 48px; padding-top: 40px; padding-bottom: 28px; }
+.site-rodape-col { display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 23px; }
+.site-rodape-col h2 { margin: 0 0 4px; font-family: var(--font-sans, inherit); font-size: 13px; line-height: 18px; letter-spacing: .12em; text-transform: uppercase; color: var(--dourado); font-weight: 700; }
+.site-rodape-col p, .site-rodape-col address { margin: 0; font-style: normal; color: #e3ebe5; }
+.site-rodape-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.site-rodape-marca p { max-width: 320px; }
+.site-rodape-redes { display: flex; gap: 10px; }
+.site-rodape-redes a { width: 40px; height: 40px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.35); display: inline-flex; align-items: center; justify-content: center; }
+.site-rodape .site-rodape-entrar { color: var(--dourado); font-weight: 600; }
+.site-rodape-legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 16px; padding-bottom: 28px; border-top: 1px solid rgba(255,255,255,.15); font-size: 13px; line-height: 18px; color: #c9d6cd; }
+.site-rodape-legal a { color: #c9d6cd; }
 
 /* O cabeçalho só mostra o menu inteiro quando tudo cabe numa linha; antes disso vira o botão ☰. */
 @media (max-width: 1439px) {
@@ -638,3 +644,27 @@ button.d { cursor: pointer; }
 .site-mat-lista:has(details[open]) { grid-column: 1 / -1; }
 .site-mat-tabelas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 0 32px; align-items: start; }
 .site-mat-lista:has(details[open]) > .site-btn { align-self: flex-start; }
+
+/* ===================== Site: calendário e privacidade ===================== */
+.site-cal { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.site-cal-meses { flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.site-cal .meses-ano { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px; }
+.site-cal .mes-ano { padding: 14px; }
+.site-cal-mes-topo { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.site-cal-datas { list-style: none; margin: 0; padding: 0; }
+.site-cal-datas li { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.site-cal-datas li > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.site-cal-quando { flex: none; width: 98px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--verde); }
+.site-texto-legal { max-width: 820px; }
+.site-texto-legal section h2 { margin: 12px 0 8px; font-size: 28px; line-height: 34px; }
+.site-texto-legal p, .site-texto-legal li { font-size: 17px; line-height: 28px; }
+.site-texto-legal p { margin: 0 0 12px; }
+.site-texto-legal ul { margin: 0 0 12px; padding-left: 22px; }
+.site-texto-legal section { scroll-margin-top: 96px; }
+.site-texto-indice ol { margin: 0; padding: 16px 20px 16px 40px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); columns: 2 240px; font-size: 15px; line-height: 26px; }
+.site-consentimento a { color: var(--verde); font-weight: 600; }
+.entrar-privacidade { margin-top: 8px; font-size: 13px; color: var(--ink-muted); }
+@media print {
+  .site-faixa-topo, .site-cabecalho, .site-rodape, .site-noticias-lado, .barra-teste, .faixa-teste { display: none !important; }
+  .site-cal .mes-ano { break-inside: avoid; }
+}

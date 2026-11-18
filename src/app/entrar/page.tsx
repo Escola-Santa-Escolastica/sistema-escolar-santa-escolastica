@@ -24,6 +24,7 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
         <FormularioEntrar voltar={voltar} aviso={aviso} />
       </div>
       <Link href="/" className="entrar-voltar-site">‹ Voltar ao site da escola</Link>
+      <Link href="/privacidade" className="entrar-privacidade">Política de privacidade</Link>
     </main>
   );
 }

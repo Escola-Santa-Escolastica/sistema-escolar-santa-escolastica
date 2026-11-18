@@ -128,6 +128,7 @@ export default function Matriculas() {
         <section id="antes-das-aulas" aria-labelledby="t-antes" className="site-largura site-secao">
           <span className="site-sobrelinha">JANEIRO DE {ano}</span>
           <h2 id="t-antes">Antes das aulas</h2>
+          <p className="site-mat-intro">Feriados, recessos e o período das aulas estão no <Link href="/calendario-escolar">calendário escolar</Link>.</p>
           <div className="site-mat-antes">
             <article className="site-cartao site-mat-bloco">
               <h3>Entrega dos materiais</h3>

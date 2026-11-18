@@ -123,7 +123,7 @@ export default async function SiteInicio() {
             <h2 id="t-contato">Agende uma visita</h2>
             <p>Deixe seu contato e a secretaria liga para combinar um horário. Você conhece as salas, a proposta e tira suas dúvidas sobre a matrícula.</p>
             <dl>
-              <div><dt>Endereço</dt><dd>{SITE.endereco}</dd></div>
+              <div><dt>Endereço</dt><dd>{SITE.endereco}{SITE.cep ? ` · CEP ${SITE.cep}` : ''} · <a href={SITE.mapa} target="_blank" rel="noopener noreferrer">Como chegar</a></dd></div>
               <div><dt>E-mail</dt><dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
               <div><dt>Telefone e WhatsApp</dt><dd><a href={`tel:${SITE.telefoneLink}`}>{SITE.telefone}</a> · <a href={SITE.whatsappLink}>conversar no WhatsApp</a></dd></div>
               {SITE.atendimento ? <div><dt>Atendimento</dt><dd>{SITE.atendimento}</dd></div> : null}

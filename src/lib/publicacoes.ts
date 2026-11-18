@@ -37,3 +37,21 @@ export async function publicacaoPorSlug(slug: string) {
     .lte('publicar_em', new Date().toISOString()).maybeSingle();
   return data as Publicacao | null;
 }
+
+export type CalendarioPublico = {
+  ano: number;
+  inicio: string | null;
+  fim: string | null;
+  dias: { data: string; tipo: 'feriado' | 'recesso' | 'sem_aula' | 'evento'; descricao: string }[];
+};
+
+/** Período das aulas e datas do ano letivo ativo (sem login). */
+export async function calendarioPublico(): Promise<CalendarioPublico | null> {
+  const supabase = await criarClienteSupabase();
+  const { data, error } = await supabase.rpc('calendario_publico');
+  if (error) {
+    console.error('[site] calendário:', error.message);
+    return null;
+  }
+  return (data as CalendarioPublico | null) ?? null;
+}
