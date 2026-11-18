@@ -70,16 +70,16 @@ insert into public.atribuicoes (user_id, papel, turma_id) values
   ('00000000-0000-0000-0000-0000000000a2', 'direcao', null),
   ('00000000-0000-0000-0000-0000000000a3', 'coordenacao', null),
   ('00000000-0000-0000-0000-0000000000a4', 'secretaria', null),
-  ('00000000-0000-0000-0000-0000000000a5', 'professor_regente', (select id from public.turmas where nome = 'Pré II · Manhã')),
-  ('00000000-0000-0000-0000-0000000000a6', 'professor_regente', (select id from public.turmas where nome = 'Pré I · Manhã')),
-  ('00000000-0000-0000-0000-0000000000a7', 'auxiliar', (select id from public.turmas where nome = 'Pré II · Manhã')),
+  ('00000000-0000-0000-0000-0000000000a5', 'professor_regente', (select id from public.turmas where nome = '2º Período · Manhã')),
+  ('00000000-0000-0000-0000-0000000000a6', 'professor_regente', (select id from public.turmas where nome = '1º Período · Manhã')),
+  ('00000000-0000-0000-0000-0000000000a7', 'auxiliar', (select id from public.turmas where nome = '2º Período · Manhã')),
   ('00000000-0000-0000-0000-0000000000a8', 'responsavel', null),
   ('00000000-0000-0000-0000-0000000000a9', 'responsavel', null);
 
-select id as pre1 from public.etapas where nome = 'Pré I' \gset
-select id as pre2 from public.etapas where nome = 'Pré II' \gset
-select id as turma_pre2 from public.turmas where nome = 'Pré II · Manhã' \gset
-select id as turma_pre1 from public.turmas where nome = 'Pré I · Manhã' \gset
+select id as pre1 from public.etapas where nome = '1º Período' \gset
+select id as pre2 from public.etapas where nome = '2º Período' \gset
+select id as turma_pre2 from public.turmas where nome = '2º Período · Manhã' \gset
+select id as turma_pre1 from public.turmas where nome = '1º Período · Manhã' \gset
 
 -- =====================================================================
 \echo '--- Anônimo'
@@ -213,7 +213,7 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4
 select tst.falha(format('update public.matriculas set turma_id = %L where id = %L', :'turma_pre2', :'mat_pedro'),
   'não enturma quem não está matriculado', 'matriculado');
 select tst.ok(tst.linhas(format('update public.matriculas set turma_id = %L where id = %L', :'turma_pre2', :'mat_maria')) = 1,
-  'enturma Maria no Pré II · Manhã');
+  'enturma Maria no 2º Período · Manhã');
 select tst.falha(format('update public.matriculas set turma_id = %L where id = %L', :'turma_pre1', :'mat_lucas'),
   'não enturma em turma de outra etapa', 'mesma etapa');
 update public.turmas set capacidade = 1 where id = :'turma_pre2';
@@ -226,7 +226,7 @@ select tst.falha(format('select public.mudar_status_matricula(%L, ''transferido'
 reset role;
 
 -- =====================================================================
-\echo '--- Professora do Pré II'
+\echo '--- Professora do 2º Período'
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', false);
 select tst.ok(tst.conta('select * from public.alunos') = 2, 'vê só os alunos da sua turma (Maria e Lucas)');
@@ -239,14 +239,14 @@ select tst.ok(tst.linhas('update public.saude_alunos set alergias = null') = 0, 
 reset role;
 
 -- =====================================================================
-\echo '--- Professor do Pré I (Pedro não está enturmado)'
+\echo '--- Professor do 1º Período (Pedro não está enturmado)'
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a6', false);
 select tst.ok(tst.conta('select * from public.alunos') = 0, 'não vê alunos sem enturmação nem de outras turmas');
 reset role;
 
 -- =====================================================================
-\echo '--- Auxiliar do Pré II'
+\echo '--- Auxiliar do 2º Período'
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a7', false);
 select tst.ok(tst.conta('select * from public.alunos') = 2, 'vê os alunos da turma');
@@ -314,7 +314,7 @@ select a.id as aluno_maria from public.alunos a join public.pessoas p on p.id = 
 select a.id as aluno_lucas from public.alunos a join public.pessoas p on p.id = a.pessoa_id where p.nome = 'Lucas Andrade Melo' \gset
 select a.id as aluno_pedro from public.alunos a join public.pessoas p on p.id = a.pessoa_id where p.nome = 'Pedro Henrique Lima' \gset
 
-\echo '--- Frequência: professora do Pré II'
+\echo '--- Frequência: professora do 2º Período'
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', false);
 select public.salvar_chamada(:'turma_pre2', '2027-03-17', array[:'aluno_lucas']::uuid[]) as chamada_hoje \gset
@@ -424,7 +424,7 @@ select tst.falha('insert into public.publicacoes (tipo, titulo, slug, resumo, st
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a3', false);
 insert into public.publicacoes (tipo, titulo, slug, resumo, status) values ('noticia', 'Notícia pública', 'noticia-publica', 'Para todos', 'publicada');
 insert into public.publicacoes (tipo, titulo, slug, resumo, status, visibilidade) values ('comunicado', 'Aviso às famílias', 'aviso-familias', 'Só famílias', 'publicada', 'familias');
-insert into public.publicacoes (tipo, titulo, slug, resumo, status, visibilidade, turma_id) values ('comunicado', 'Aviso do Pré II', 'aviso-pre2', 'Só a turma', 'publicada', 'turma', :'turma_pre2');
+insert into public.publicacoes (tipo, titulo, slug, resumo, status, visibilidade, turma_id) values ('comunicado', 'Aviso do 2º Período', 'aviso-pre2', 'Só a turma', 'publicada', 'turma', :'turma_pre2');
 insert into public.publicacoes (tipo, titulo, slug, resumo, status, publicar_em) values ('noticia', 'Agendada', 'agendada', 'Amanhã', 'publicada', now() + interval '1 day');
 select tst.falha('insert into public.publicacoes (tipo, titulo, slug, resumo, status) values (''evento'', ''Evento sem data'', ''evento-sem-data'', ''x x x'', ''publicada'')',
   'evento precisa de data', 'check');
@@ -447,13 +447,21 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a8
 select tst.ok(tst.conta('select * from public.publicacoes') = 3, 'mãe vê a pública, a das famílias e a da turma do filho');
 select tst.ok(tst.linhas('update public.publicacoes set titulo = ''Mudado''') = 0, 'família não altera publicações');
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a9', false);
-select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'pai de aluno sem turma não vê o aviso do Pré II');
+select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'pai de aluno sem turma não vê o aviso do 2º Período');
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a6', false);
-select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'professor do Pré I não vê o aviso do Pré II');
+select tst.ok(tst.conta('select * from public.publicacoes') = 2, 'professor do 1º Período não vê o aviso do 2º Período');
 select tst.ok(tst.conta('select * from public.pedidos_visita') = 0, 'professor não lê pedidos de visita');
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a4', false);
 select tst.ok(tst.conta('select * from public.pedidos_visita') = 1, 'secretaria lê o pedido de visita');
 select tst.ok(tst.linhas('delete from public.publicacoes') = 0, 'secretaria não apaga publicações');
 reset role;
+
+\echo '--- Turmas e documentos de 2027'
+select tst.ok((select string_agg(nome, ',' order by ordem) from public.etapas) = 'Maternal II,Maternal III,1º Período,2º Período', 'quatro etapas, na ordem');
+select tst.ok((select string_agg(idade_referencia::text, ',' order by ordem) from public.etapas) = '2,3,4,5', 'idades de 2 a 5 anos');
+select tst.ok((select count(*) from public.tipos_documento where obrigatorio) = 5, 'cinco documentos obrigatórios, como na lista da escola');
+select tst.ok(not exists (select 1 from public.tipos_documento where nome in ('Foto 3x4', 'Declaração de transferência (se veio de outra escola)')), 'foto 3x4 e declaração de transferência saíram');
+select tst.ok(exists (select 1 from public.tipos_documento where nome = 'Carteirinha do convênio ou Cartão SUS' and obrigatorio), 'convênio ou Cartão SUS é obrigatório');
+select tst.ok(exists (select 1 from public.tipos_documento where nome = 'CPF do aluno (se houver)' and not obrigatorio), 'CPF do aluno só se houver');
 
 \echo '=== TODOS OS TESTES PASSARAM ==='

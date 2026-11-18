@@ -25,16 +25,16 @@ const LOGINS = [
   { chave: 'direcao', email: `direcao@${DOMINIO}`, nome: 'Marta Duarte (teste)', papeis: ['direcao'] },
   { chave: 'coordenacao', email: `coordenacao@${DOMINIO}`, nome: 'Carla Mendes (teste)', papeis: ['coordenacao'] },
   { chave: 'secretaria', email: `secretaria@${DOMINIO}`, nome: 'Renata Alves (teste)', papeis: ['secretaria'] },
-  { chave: 'professora', email: `professora@${DOMINIO}`, nome: 'Ana Beatriz Moura (teste)', papeis: ['professor_regente'], turma: 'Pré II · Manhã' },
-  { chave: 'auxiliar', email: `auxiliar@${DOMINIO}`, nome: 'Joana Lima (teste)', papeis: ['auxiliar'], turma: 'Pré II · Manhã' },
+  { chave: 'professora', email: `professora@${DOMINIO}`, nome: 'Ana Beatriz Moura (teste)', papeis: ['professor_regente'], turma: '2º Período · Manhã' },
+  { chave: 'auxiliar', email: `auxiliar@${DOMINIO}`, nome: 'Joana Lima (teste)', papeis: ['auxiliar'], turma: '2º Período · Manhã' },
   { chave: 'mae', email: `mae@${DOMINIO}`, nome: 'Juliana Souza (teste)', papeis: ['responsavel'] },
 ];
 
 const TURMAS = [
-  { etapa: 'Pré I', turno: 'manha', nome: 'Pré I · Manhã' },
-  { etapa: 'Pré I', turno: 'tarde', nome: 'Pré I · Tarde' },
-  { etapa: 'Pré II', turno: 'manha', nome: 'Pré II · Manhã' },
-  { etapa: 'Pré II', turno: 'tarde', nome: 'Pré II · Tarde' },
+  { etapa: '1º Período', turno: 'manha', nome: '1º Período · Manhã' },
+  { etapa: '1º Período', turno: 'tarde', nome: '1º Período · Tarde' },
+  { etapa: '2º Período', turno: 'manha', nome: '2º Período · Manhã' },
+  { etapa: '2º Período', turno: 'tarde', nome: '2º Período · Tarde' },
 ];
 
 // Crianças e famílias inventadas. "fim" = até onde a matrícula anda no fluxo.
@@ -44,7 +44,7 @@ const MAE_JULIANA = {
 };
 const CRIANCAS = [
   {
-    nome: 'Maria Clara Souza', nasc: '2022-03-14', sexo: 'feminino', etapa: 'Pré II', turno: 'manha', fim: 'enturmado',
+    nome: 'Maria Clara Souza', nasc: '2022-03-14', sexo: 'feminino', etapa: '2º Período', turno: 'manha', fim: 'enturmado',
     resps: [MAE_JULIANA,
       { nome: 'Ricardo Souza (teste)', parentesco: 'Pai', filiacao: 'pai', telefone: '37900000002', pode_buscar: true, responsavel_legal: true },
       { nome: 'Helena Souza (teste)', parentesco: 'Avó', telefone: '37900000003', pode_buscar: true, contato_emergencia: true }],
@@ -52,42 +52,42 @@ const CRIANCAS = [
     atendimento: { possui_laudo: true, laudo_descricao: 'TEA (laudo de exemplo)', acompanha_atendimento: true, atendimento_descricao: 'Fonoaudiologia, 1x por semana' },
   },
   {
-    nome: 'Lucas Andrade Souza', nasc: '2022-06-02', sexo: 'masculino', etapa: 'Pré II', turno: 'manha', fim: 'enturmado',
+    nome: 'Lucas Andrade Souza', nasc: '2022-06-02', sexo: 'masculino', etapa: '2º Período', turno: 'manha', fim: 'enturmado',
     resps: [MAE_JULIANA], saude: {}, atendimento: {},
   },
   {
-    nome: 'Helena Martins', nasc: '2022-01-25', sexo: 'feminino', etapa: 'Pré II', turno: 'manha', fim: 'enturmado',
+    nome: 'Helena Martins', nasc: '2022-01-25', sexo: 'feminino', etapa: '2º Período', turno: 'manha', fim: 'enturmado',
     resps: [{ nome: 'Paula Martins (teste)', parentesco: 'Mãe', filiacao: 'mae', telefone: '37900000004', responsavel_legal: true, responsavel_financeiro: true, pode_buscar: true }],
     saude: { restricao_alimentar: 'Intolerância à lactose' }, atendimento: {},
   },
   {
-    nome: 'Isabela Prado', nasc: '2022-08-30', sexo: 'feminino', etapa: 'Pré II', turno: 'manha', fim: 'enturmado',
+    nome: 'Isabela Prado', nasc: '2022-08-30', sexo: 'feminino', etapa: '2º Período', turno: 'manha', fim: 'enturmado',
     resps: [{ nome: 'Fernanda Prado (teste)', parentesco: 'Mãe', filiacao: 'mae', telefone: '37900000005', responsavel_legal: true, pode_buscar: true },
       { nome: 'Rafael Prado (teste)', parentesco: 'Pai', filiacao: 'pai', telefone: '37900000006', responsavel_financeiro: true, pode_buscar: true }],
     saude: {}, atendimento: {},
   },
   {
-    nome: 'Pedro Henrique Lima', nasc: '2023-01-20', sexo: 'masculino', etapa: 'Pré I', turno: 'manha', fim: 'enturmado',
+    nome: 'Pedro Henrique Lima', nasc: '2023-01-20', sexo: 'masculino', etapa: '1º Período', turno: 'manha', fim: 'enturmado',
     resps: [{ nome: 'Carlos Lima (teste)', parentesco: 'Pai', filiacao: 'pai', telefone: '37900000007', responsavel_legal: true, responsavel_financeiro: true, pode_buscar: true }],
     saude: { medicamento_continuo: 'Anticonvulsivante (exemplo), 12h' }, atendimento: {},
   },
   {
-    nome: 'Sofia Ribeiro', nasc: '2023-04-11', sexo: 'feminino', etapa: 'Pré I', turno: 'tarde', fim: 'aguardando_aprovacao',
+    nome: 'Sofia Ribeiro', nasc: '2023-04-11', sexo: 'feminino', etapa: '1º Período', turno: 'tarde', fim: 'aguardando_aprovacao',
     resps: [{ nome: 'Patrícia Ribeiro (teste)', parentesco: 'Mãe', filiacao: 'mae', telefone: '37900000008', responsavel_legal: true, pode_buscar: true }],
     saude: {}, atendimento: {},
   },
   {
-    nome: 'Bento Ferreira', nasc: '2022-11-05', sexo: 'masculino', etapa: 'Pré II', turno: 'tarde', fim: 'pendente_documento',
+    nome: 'Bento Ferreira', nasc: '2022-11-05', sexo: 'masculino', etapa: '2º Período', turno: 'tarde', fim: 'pendente_documento',
     resps: [{ nome: 'Luciana Ferreira (teste)', parentesco: 'Mãe', filiacao: 'mae', telefone: '37900000009', responsavel_legal: true, pode_buscar: true }],
-    saude: {}, atendimento: {}, faltando: 'Cartão de vacina',
+    saude: {}, atendimento: {}, faltando: 'Caderneta de vacinação',
   },
   {
-    nome: 'Davi Assis', nasc: '2023-02-17', sexo: 'masculino', etapa: 'Pré I', turno: 'manha', fim: 'em_analise',
+    nome: 'Davi Assis', nasc: '2023-02-17', sexo: 'masculino', etapa: '1º Período', turno: 'manha', fim: 'em_analise',
     resps: [{ nome: 'Marcos Assis (teste)', parentesco: 'Pai', filiacao: 'pai', telefone: '37900000010', responsavel_legal: true, pode_buscar: true }],
     saude: { alergias: 'Dipirona' }, atendimento: {},
   },
   {
-    nome: 'Théo Carvalho', nasc: '2023-07-09', sexo: 'masculino', etapa: 'Pré I', turno: 'tarde', fim: 'em_analise',
+    nome: 'Théo Carvalho', nasc: '2023-07-09', sexo: 'masculino', etapa: '1º Período', turno: 'tarde', fim: 'em_analise',
     resps: [{ nome: 'Beatriz Carvalho (teste)', parentesco: 'Mãe', filiacao: 'mae', telefone: '37900000011', responsavel_legal: true, pode_buscar: true }],
     saude: {}, atendimento: {},
   },
@@ -322,7 +322,7 @@ console.log('\n=====================================================');
 console.log(' Ambiente de teste pronto');
 console.log('=====================================================');
 console.log(` Senha de todos os logins de teste: ${senha}\n`);
-for (const l of LOGINS) console.log(` ${l.email.padEnd(42)} ${l.nome.replace(' (teste)', '')} — ${l.papeis.map((p) => ({ direcao: 'Direção', coordenacao: 'Coordenação', secretaria: 'Secretaria', professor_regente: 'Professora do Pré II · Manhã', auxiliar: 'Auxiliar do Pré II · Manhã', responsavel: 'Mãe da Maria Clara e do Lucas' }[p])).join(', ')}`);
+for (const l of LOGINS) console.log(` ${l.email.padEnd(42)} ${l.nome.replace(' (teste)', '')} — ${l.papeis.map((p) => ({ direcao: 'Direção', coordenacao: 'Coordenação', secretaria: 'Secretaria', professor_regente: 'Professora do 2º Período · Manhã', auxiliar: 'Auxiliar do 2º Período · Manhã', responsavel: 'Mãe da Maria Clara e do Lucas' }[p])).join(', ')}`);
 if (adminEmail) console.log(`\n Seu login: ${adminEmail}  ${senhaAdmin ? `(senha: ${senhaAdmin})` : '(senha: a mesma de antes)'}`);
 console.log('');
 }

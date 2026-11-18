@@ -20,7 +20,7 @@ export function FormularioTurma({ etapas }: { etapas: { id: string; nome: string
         <option value="" disabled>Escolha</option>
         {Object.entries(TURNOS).map(([v, r]) => <option key={v} value={v}>{r}</option>)}
       </CampoSelect>
-      <Campo rotulo="Nome da turma" name="nome" dica="Em branco: etapa · turno (ex.: Pré II · Manhã)." />
+      <Campo rotulo="Nome da turma" name="nome" dica="Em branco: etapa · turno (ex.: 2º Período · Manhã)." />
       <Campo rotulo="Capacidade (vagas)" name="capacidade" type="number" min={1} max={60} defaultValue={20} obrigatorio />
       <Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Criando…' : 'Criar turma'}</Botao>
     </form>

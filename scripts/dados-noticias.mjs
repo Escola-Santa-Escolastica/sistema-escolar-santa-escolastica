@@ -24,7 +24,7 @@ export function publicacoesExemplo(hoje, turmas) {
       slug: 'exemplo-festa-da-familia', tipo: 'evento', titulo: 'Festa da Família (exemplo)',
       evento_data: sabado(hoje, 2), evento_inicio: '09:00', evento_fim: '11:30', evento_local: 'Pátio da escola',
       resumo: 'Uma manhã de brincadeiras, apresentações das turmas e lanche partilhado. Publicação de teste.',
-      texto: 'Este é um texto de exemplo do ambiente de teste.\n\nAs famílias são convidadas para uma manhã de convivência na escola, com apresentações do Pré I e do Pré II.\n\nCada família pode trazer um prato doce ou salgado para o lanche partilhado.',
+      texto: 'Este é um texto de exemplo do ambiente de teste.\n\nAs famílias são convidadas para uma manhã de convivência na escola, com apresentações do 1º Período e do 2º Período.\n\nCada família pode trazer um prato doce ou salgado para o lanche partilhado.',
       publicar_em: haDias(hoje, 1),
     },
     {
@@ -36,12 +36,12 @@ export function publicacoesExemplo(hoje, turmas) {
     },
     {
       slug: 'exemplo-projeto-horta', tipo: 'noticia', titulo: 'Projeto horta: as crianças plantaram (exemplo)',
-      resumo: 'O Pré I começou a cuidar de uma pequena horta no pátio. Publicação de teste.',
+      resumo: 'O 1º Período começou a cuidar de uma pequena horta no pátio. Publicação de teste.',
       texto: 'Texto de exemplo do ambiente de teste.\n\nCada criança ficou responsável por regar uma muda durante a semana.\n\nNo fim do mês, a colheita vai para o lanche da turma.',
       publicar_em: haDias(hoje, 4),
     },
     {
-      slug: 'exemplo-semana-da-leitura', tipo: 'noticia', titulo: 'Semana da leitura no Pré II (exemplo)',
+      slug: 'exemplo-semana-da-leitura', tipo: 'noticia', titulo: 'Semana da leitura no 2º Período (exemplo)',
       resumo: 'Contação de histórias, empréstimo de livros e uma visita da biblioteca municipal. Publicação de teste.',
       texto: 'Texto de exemplo do ambiente de teste.\n\nAs crianças levaram um livro para ler em casa com a família.',
       publicar_em: haDias(hoje, 9),
@@ -49,20 +49,20 @@ export function publicacoesExemplo(hoje, turmas) {
     {
       slug: 'exemplo-matriculas-2027', tipo: 'comunicado', titulo: 'Matrículas 2027: como vai funcionar (exemplo)',
       resumo: 'As datas e os documentos da matrícula serão divulgados aqui. Publicação de teste.',
-      texto: 'Texto de exemplo do ambiente de teste.\n\nTenha em mãos a certidão de nascimento, o cartão de vacina e um comprovante de endereço.',
+      texto: 'Texto de exemplo do ambiente de teste.\n\nTenha em mãos a certidão de nascimento, a caderneta de vacinação e um comprovante de residência.',
       publicar_em: haDias(hoje, 6),
     },
     {
-      slug: 'exemplo-aviso-dia-do-brinquedo', tipo: 'comunicado', titulo: 'Dia do brinquedo no Pré II (exemplo)',
-      visibilidade: 'turma', turma_id: turmas['Pré II · Manhã'],
-      resumo: 'Na sexta, cada criança pode trazer um brinquedo de casa. Aviso de teste só para as famílias do Pré II · Manhã.',
+      slug: 'exemplo-aviso-dia-do-brinquedo', tipo: 'comunicado', titulo: 'Dia do brinquedo no 2º Período (exemplo)',
+      visibilidade: 'turma', turma_id: turmas['2º Período · Manhã'],
+      resumo: 'Na sexta, cada criança pode trazer um brinquedo de casa. Aviso de teste só para as famílias do 2º Período · Manhã.',
       texto: 'Mande o brinquedo com o nome da criança. Evite brinquedos pequenos ou que façam barulho.',
       publicar_em: haDias(hoje, 0, '08:00'),
     },
     {
-      slug: 'exemplo-aviso-reuniao-pre-i', tipo: 'comunicado', titulo: 'Reunião de famílias do Pré I (exemplo)',
-      visibilidade: 'turma', turma_id: turmas['Pré I · Manhã'],
-      resumo: 'Reunião na quinta, às 17h30, na sala da turma. Aviso de teste só para o Pré I · Manhã.',
+      slug: 'exemplo-aviso-reuniao-pre-i', tipo: 'comunicado', titulo: 'Reunião de famílias do 1º Período (exemplo)',
+      visibilidade: 'turma', turma_id: turmas['1º Período · Manhã'],
+      resumo: 'Reunião na quinta, às 17h30, na sala da turma. Aviso de teste só para o 1º Período · Manhã.',
       texto: '', publicar_em: haDias(hoje, 1),
     },
     {

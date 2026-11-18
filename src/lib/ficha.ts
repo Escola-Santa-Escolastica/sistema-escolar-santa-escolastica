@@ -97,7 +97,7 @@ export const esquemaAtendimento = z.object({
 });
 
 export const esquemaMatricula = z.object({
-  etapa_id: z.string({ error: 'Escolha a etapa pretendida (Pré I ou Pré II).' }).uuid('Escolha a etapa pretendida (Pré I ou Pré II).'),
+  etapa_id: z.string({ error: 'Escolha a etapa pretendida.' }).uuid('Escolha a etapa pretendida.'),
   turno_pretendido: z.enum(['manha', 'tarde', 'integral'], { message: 'Escolha o turno.' }),
   instituicao_origem: texto,
   ultimo_ano_cursado: texto,
